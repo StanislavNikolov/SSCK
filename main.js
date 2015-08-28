@@ -1,4 +1,5 @@
 var app = require("express")();
+var cp = require("child_process").exec;
 
 var bodyParser = require("body-parser");
 app.use(bodyParser.json());
@@ -6,8 +7,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 var fs = require("fs");
 
-app.get('/', function(req, res) {
+app.get("/", function(req, res) {
 	  res.sendFile(__dirname+"/index.html");
+});
+
+app.get("/results", function(req, res) {
+
 });
 
 var server = app.listen(3000, function() {
@@ -41,6 +46,9 @@ app.post("/", function(req, res) {
 		    }
 		    console.log(completeFileName);
 	  });
+	  res.sendFile(__dirname+"/submissionReceived.html");
 
-	  res.send("Submission received.");
+	  cp(__dirname+"/compile.sh "+completeFileName+" "+req.body.task, function(err, stdout, stderr) {
+		    console.log(stdout);
+	  });
 });
