@@ -1,0 +1,14 @@
+{
+  "name": "scs",
+  "version": "0.0.1",
+  "description": "Source Control System",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Stanislav Nikolov <stanislav.ltb@gmail.com>",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "socketio-file-upload": "^0.4.2"
+  }
+}
