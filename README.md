@@ -1,4 +1,5 @@
 Simple Source Controller for Kiten
-#########
+=======
 
-Fuck description.
+Currently the project is undocumented and is experimental.
+
