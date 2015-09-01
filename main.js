@@ -28,16 +28,6 @@ function randStr()
 	return Math.random().toString(36).substr(2, 5);
 }
 
-function to_html(string)
-{
-	var output = "<b>";
-	var lines = string.split('\n');
-
-	for(var i in lines)
-		output += lines[i] + "<br>";
-
-	return output+"</b>";
-}
 app.post("/", function(req, res) {
 	var dir = __dirname+"/uploadDir/"+req.body.guysName;
 
@@ -51,5 +41,8 @@ app.post("/", function(req, res) {
 	var completeFileName = dir+"/"+randStr()+".cpp";
 	fs.writeFile(completeFileName, req.body.sourceInput, function(err) {});
 
-	cp(__dirname+"/compile.sh "+completeFileName+" "+req.body.task, function(err, stdout, stderr) {res.send(to_html(stdout));});
+	cp(__dirname+"/compile.sh "+completeFileName+" "+req.body.task, function(err, stdout, stderr) {
+		res.setHeader('content-type', 'text/plain');
+		res.send(stdout);
+	});
 });
