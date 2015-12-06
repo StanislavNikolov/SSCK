@@ -41,8 +41,9 @@ app.post("/", function(req, res) {
 	var completeFileName = dir+"/"+randStr()+".cpp";
 	fs.writeFile(completeFileName, req.body.sourceInput, function(err) {});
 
-	cp(__dirname+"/compile.sh "+completeFileName+" "+req.body.task, function(err, stdout, stderr) {
-		res.setHeader('content-type', 'text/plain');
-		res.send(stdout);
+	cp(__dirname+"/compile.sh "+completeFileName+" "+req.body.task,
+		function(err, stdout, stderr) {
+			res.setHeader('content-type', 'text/plain');
+			res.send(stdout);
 	});
 });
