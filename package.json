@@ -9,5 +9,7 @@
   "author": "Stanislav Nikolov <stanislav.ltb@gmail.com>",
   "license": "GPL-3.0",
   "dependencies": {
+    "body-parser": "^1.14.2",
+    "express": "^4.13.3"
   }
 }
