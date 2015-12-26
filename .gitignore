@@ -1,4 +1,3 @@
 *.swp
-checkers/*
 uploadDir/*
 node_modules/*

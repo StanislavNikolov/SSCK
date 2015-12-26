@@ -1,0 +1,6 @@
+#!/bin/bash
+
+echo "Starting checker for binary $1"
+echo "Output:"
+
+echo `$1`
