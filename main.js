@@ -41,6 +41,7 @@ app.post("/", function(req, res) {
 	var completeFileName = dir+"/"+randStr()+".cpp";
 	fs.writeFile(completeFileName, req.body.sourceInput, function(err) {});
 
+	console.log("Submission accepted by", req.body.guysName);
 	cp(__dirname+"/compile.sh "+completeFileName+" "+req.body.task,
 		function(err, stdout, stderr) {
 			res.setHeader('content-type', 'text/plain');
