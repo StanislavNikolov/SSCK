@@ -27,8 +27,8 @@ function makeRandomColor()
 }
 
 app.get("/results", function(req, res) {
-	var output = "<style>td{ width: auto;}</style><table>";
-	output += "<caption> Results </caption>";
+	var output = "<center><table>";
+	output += "<caption><font size=10><b> RESULTS <b></caption>";
 
 	output += "<tr bgcolor=\"black\"><th></th>";
 	var userColors = [];
@@ -36,7 +36,7 @@ app.get("/results", function(req, res) {
 	{
 		var color = makeRandomColor();
 		userColors.push(color);
-		output += "<th><font color="+color+">" + users[i].name + "</font></th>";
+		output += "<th width=100><font color="+color+">" + users[i].name + "</font></th>";
 	}
 	output += "</tr>";
 
@@ -53,7 +53,7 @@ app.get("/results", function(req, res) {
 		}
 		output += "</tr>";
 	}
-	output += "</table>";
+	output += "</table></center>";
 	res.send(output);
 });
 
