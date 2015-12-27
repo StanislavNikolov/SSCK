@@ -35,4 +35,6 @@ do
 	fi
 done;
 
-echo "Result: $currentPoints/$maxPoints"
+echo "<h2> Result: $currentPoints/$maxPoints </h2>"
+echo "__SSCK_RES_PACK__"
+echo "$currentPoints"
