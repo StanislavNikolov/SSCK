@@ -1,9 +1,0 @@
-#!/bin/bash
-
-binPath=$1
-taskName=$2
-
-echo "Starting checker for binary $1"
-echo "Output:"
-
-echo `$1`

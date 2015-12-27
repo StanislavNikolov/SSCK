@@ -1,0 +1,37 @@
+#!/bin/bash
+
+tmpfile=`mktemp`
+task=$2
+
+testCount["task001"]=10
+testCount["task002"]=12
+testCount["task003"]=16
+testCount["task004"]=10
+testCount["task005"]=10
+testCount["task006"]=10
+
+maxPoints=${testCount[$task]}
+currentPoints=$maxPoints
+
+function fail_timeout {
+	echo "Timeout"
+	currentPoints=$((currentPoints-1))
+}
+
+function fail_wrong {
+	echo "Wrong answer"
+	currentPoints=$((currentPoints-1))
+}
+
+for number in `seq 1 $maxPoints`
+do
+	echo "==== Test $number ===="
+	if timeout 0.5 $1 < checkers/tests/$task/$number.in > $tmpfile
+	then
+		diff -q checkers/tests/$task/$number.out $tmpfile > /dev/null || fail_wrong
+	else
+		fail_timeout
+	fi
+done;
+
+echo "Result: $currentPoints/$maxPoints"
