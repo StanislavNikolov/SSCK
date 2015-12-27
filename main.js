@@ -16,20 +16,41 @@ var users = [];
 var tasks = [];
 readResults();
 
-app.get("/results", function(req, res) {
-	var output = "<table border=1 width=99%>";
+function makeRandomColor()
+{
+	var symbols = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "f"];
+	var output = "#";
+	for(var i = 0;i < 6;++ i)
+		output+=symbols[Math.floor(Math.random() * (symbols.length+1))];
 
-	output += "<tr><th> </th>";
+	return output;
+}
+
+app.get("/results", function(req, res) {
+	var output = "<style>td{ width: auto;}</style><table>";
+	output += "<caption> Results </caption>";
+
+	output += "<tr bgcolor=\"black\"><th></th>";
+	var userColors = [];
 	for(var i in users)
-		output += "<th>" + users[i].name + "</th>";
+	{
+		var color = makeRandomColor();
+		userColors.push(color);
+		output += "<th><font color="+color+">" + users[i].name + "</font></th>";
+	}
 	output += "</tr>";
+
+	var colors = ["#969696", "#bababa"];
 
 	for(var i in tasks)
 	{
-		output += "<tr><th>" + tasks[i] + "</th>";
+		output += "<tr bgcolor="+colors[i%colors.length]+"><th>" + tasks[i] + "</th>";
 		for(var j in users)
-			if(users[j].results[tasks[i]] > 0)
-				output += "<th>" + users[j].results[tasks[i]] + "</th>";
+		{
+			if(users[j].results[tasks[i]] == undefined)
+				users[j].results[tasks[i]] = 0;
+			output += "<th><font color="+userColors[j]+">" + users[j].results[tasks[i]] + "</font></th>";
+		}
 		output += "</tr>";
 	}
 	output += "</table>";
