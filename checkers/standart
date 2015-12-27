@@ -3,6 +3,7 @@
 tmpfile=`mktemp`
 task=$2
 
+declare -A testCount
 testCount["task001"]=10
 testCount["task002"]=12
 testCount["task003"]=16
