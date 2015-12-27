@@ -14,4 +14,4 @@ fi
 
 echo "c++ $CXXFLAGS $fullPath -o $notFullPath"
 c++ $CXXFLAGS $fullPath -o $notFullPath
-./checkers/standart $notFullPath $task
+./checkers/standard $notFullPath $task
