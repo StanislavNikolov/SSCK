@@ -13,24 +13,26 @@ app.get("/", function(req, res) {
 });
 
 var users = [];
+var tasks = [];
+readResults();
 
 app.get("/results", function(req, res) {
-	var output = "<table style=\"width:100%\"><tr>";
-	for(var i in users)
-		output += "<td>" + users[i].name + "</td>";
-	output += "</tr><tr>";
+	var output = "<table border=1 width=99%>";
 
+	output += "<tr><th> </th>";
 	for(var i in users)
+		output += "<th>" + users[i].name + "</th>";
+	output += "</tr>";
+
+	for(var i in tasks)
 	{
-		var result = 0;
-		for(var j in users[i].task)
-			result += users[i].task[j];
-		console.log(users[i].name, result);
-
-		output += "<td>" + result + "</td>";
+		output += "<tr><th>" + tasks[i] + "</th>";
+		for(var j in users)
+			if(users[j].results[tasks[i]] > 0)
+				output += "<th>" + users[j].results[tasks[i]] + "</th>";
+		output += "</tr>";
 	}
-
-	output += "</tr></table>";
+	output += "</table>";
 	res.send(output);
 });
 
@@ -46,6 +48,32 @@ function randStr()
 	return Math.random().toString(36).substr(2, 5);
 }
 
+function saveResults()
+{
+	var tj = JSON.stringify(tasks);
+	var uj = JSON.stringify(users);
+
+	fs.writeFile(__dirname+"/results_tasks", tj, function(){});
+	fs.writeFile(__dirname+"/results_users", uj, function(){});
+}
+
+function readResults()
+{
+	var tj, uj;
+	fs.readFile(__dirname+"/results_tasks", "utf8", function(err, data)
+	{
+		if(err) { console.log(err); }
+		tj=data;
+		tasks = JSON.parse(tj);
+	});
+	fs.readFile(__dirname+"/results_users", "utf8", function(err, data)
+	{
+		if(err) { console.log(err); }
+		uj=data;
+		users = JSON.parse(uj);
+	});
+}
+
 function addNewResult(name, task, strres)
 {
 	var res = 0;
@@ -55,17 +83,26 @@ function addNewResult(name, task, strres)
 		res += (strres[i]-'0');
 	}
 
+	var inTasks = false;
+	for(var i in tasks)
+	{
+		if(tasks[i] == task)
+			inTasks = true;
+	}
+	if(!inTasks)
+		tasks.push(task);
+
 	for(var i in users)
 	{
 		if(name == users[i].name)
 		{
-			if(res > users[i].task[task])
-				users[i].task[task] = res;
+			if(users[i].results[task] == undefined || res > users[i].results[task])
+				users[i].results[task] = res;
 			return;
 		}
 	}
-	var nu = {name:name, task:[]};
-	nu.task[task] = res;
+	var nu = {name:name, results:{}};
+	nu.results[task] = res;
 	users.push(nu);
 }
 
@@ -88,7 +125,6 @@ app.post("/", function(req, res) {
 	console.log("Submission accepted by", req.body.guysName);
 	cp(__dirname+"/compile.sh "+completeFileName+" "+req.body.task,
 		function(err, stdout, stderr) {
-			//res.setHeader('content-type', 'text/plain');
 			var output = "";
 			var lines = stdout.split("\n");
 			for(var i = 0;i < lines.length;++ i)
@@ -99,5 +135,6 @@ app.post("/", function(req, res) {
 					output += lines[i] + "<br>";
 			}
 			res.send(output);
+			saveResults();
 	});
 });
