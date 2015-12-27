@@ -29,6 +29,9 @@ function randStr()
 }
 
 app.post("/", function(req, res) {
+	if(req.body.guysName == undefined || req.body.guysName == "")
+		req.body.guysName = "nobody";
+
 	var dir = __dirname+"/uploadDir/"+req.body.guysName;
 
 	if(fs.existsSync(dir) == false)
