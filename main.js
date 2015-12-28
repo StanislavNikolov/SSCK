@@ -84,11 +84,12 @@ function readResults()
 
 function addNewResult(name, task, strres)
 {
-	var res = 0;
+	// Parse the string to int
+	var result = 0;
 	for(var i = 0;i < strres.length;++ i)
 	{
-		res *= 10;
-		res += (strres[i]-'0');
+		result *= 10;
+		result += (strres[i]-'0');
 	}
 
 	var inTasks = false;
@@ -111,14 +112,20 @@ function addNewResult(name, task, strres)
 	{
 		if(name == users[i].name)
 		{
-			if(users[i].results[task] == undefined || res > users[i].results[task])
-				users[i].results[task] = res;
+			if(users[i].results[task] == undefined || result > users[i].results[task])
+			{
+				users[i].results[task] = result;
+				saveResults();
+			}
 			return;
 		}
 	}
+
 	var nu = {name:name, results:{}};
 	nu.results[task] = res;
 	users.push(nu);
+
+	saveResults();
 }
 
 app.post("/", function(req, res) {
@@ -137,10 +144,11 @@ app.post("/", function(req, res) {
 	if(fs.existsSync(dir) == false)
 		fs.mkdirSync(dir);
 
-	var completeFileName = dir+"/"+randStr()+".cpp";
+	var commitId = randStr();
+	var completeFileName = dir+"/"+commitId+".cpp";
 	fs.writeFile(completeFileName, req.body.sourceInput, function(err) {});
 
-	console.log("Submission accepted by", req.body.guysName);
+	console.log("Submission accepted by", req.body.guysName, "on task", req.body.task, "with id", commitId);
 	cp(__dirname+"/compile.sh "+completeFileName+" "+req.body.task,
 		function(err, stdout, stderr) {
 			var output = "";
@@ -153,6 +161,5 @@ app.post("/", function(req, res) {
 					output += lines[i] + "<br>";
 			}
 			res.send(output);
-			saveResults();
 	});
 });
