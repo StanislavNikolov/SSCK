@@ -38,6 +38,15 @@ app.get("/results", function(req, res) {
 		}
 		output += "</tr>";
 	}
+	output += "<tr bgcolor=\"blue\"><th>total</th>";
+	for(var i in users)
+	{
+		var total = 0;
+		for(var j in users[i].results)
+			total += users[i].results[j];
+		output += "<th><font color=\"white\">" + total + "</font></th>";
+	}
+	output += "</tr>";
 	output += "</table></center>";
 	res.send(output);
 });
