@@ -22,9 +22,7 @@ app.get("/results", function(req, res) {
 
 	output += "<tr><th></th>";
 	for(var i in users)
-	{
 		output += "<th bgcolor=\"black\" width=100><font size=5 color=\"white\">" + users[i].name + "</font></th>";
-	}
 	output += "</tr>";
 
 	var colors = ["#6d6c6c", "#898989"];
@@ -58,27 +56,29 @@ function randStr()
 
 function saveResults()
 {
-	var tj = JSON.stringify(tasks);
-	var uj = JSON.stringify(users);
-
-	fs.writeFile(__dirname+"/results_tasks", tj, function(){});
-	fs.writeFile(__dirname+"/results_users", uj, function(){});
+	fs.writeFile(__dirname+"/results_tasks", JSON.stringify(tasks));
+	fs.writeFile(__dirname+"/results_users", JSON.stringify(users));
 }
 
 function readResults()
 {
-	var tj, uj;
 	fs.readFile(__dirname+"/results_tasks", "utf8", function(err, data)
 	{
-		if(err) { console.log(err); }
-		tj=data;
-		tasks = JSON.parse(tj);
+		if(!err)
+		{
+			tasks = JSON.parse(data);
+			return;
+		}
+		console.log(err);
 	});
 	fs.readFile(__dirname+"/results_users", "utf8", function(err, data)
 	{
-		if(err) { console.log(err); }
-		uj=data;
-		users = JSON.parse(uj);
+		if(!err)
+		{
+			users = JSON.parse(data);
+			return;
+		}
+		console.log(err);
 	});
 }
 
@@ -95,10 +95,17 @@ function addNewResult(name, task, strres)
 	for(var i in tasks)
 	{
 		if(tasks[i] == task)
+		{
 			inTasks = true;
+			break;
+		}
 	}
+
 	if(!inTasks)
+	{
 		tasks.push(task);
+		tasks.sort();
+	}
 
 	for(var i in users)
 	{
@@ -119,6 +126,9 @@ app.post("/", function(req, res) {
 		req.body.guysName = "nobody";
 
 	var dir = __dirname+"/uploadDir/"+req.body.guysName;
+
+	if(fs.existsSync(__dirname+"/uploadDir") == false)
+		fs.mkdirSync(__dirname+"/uploadDir");
 
 	if(fs.existsSync(dir) == false)
 		fs.mkdirSync(dir);
