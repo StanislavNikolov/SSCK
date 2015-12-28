@@ -16,31 +16,18 @@ var users = [];
 var tasks = [];
 readResults();
 
-function makeRandomColor()
-{
-	var symbols = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "f"];
-	var output = "#";
-	for(var i = 0;i < 6;++ i)
-		output+=symbols[Math.floor(Math.random() * (symbols.length+1))];
-
-	return output;
-}
-
 app.get("/results", function(req, res) {
 	var output = "<center><table>";
-	output += "<caption><font size=10><b> RESULTS <b></caption>";
+	output += "<caption><font size=10><b> RESULTS <b></font></caption>";
 
-	output += "<tr bgcolor=\"black\"><th></th>";
-	var userColors = [];
+	output += "<tr><th></th>";
 	for(var i in users)
 	{
-		var color = makeRandomColor();
-		userColors.push(color);
-		output += "<th width=100><font color="+color+">" + users[i].name + "</font></th>";
+		output += "<th bgcolor=\"black\" width=100><font size=5 color=\"white\">" + users[i].name + "</font></th>";
 	}
 	output += "</tr>";
 
-	var colors = ["#969696", "#bababa"];
+	var colors = ["#6d6c6c", "#898989"];
 
 	for(var i in tasks)
 	{
@@ -49,7 +36,7 @@ app.get("/results", function(req, res) {
 		{
 			if(users[j].results[tasks[i]] == undefined)
 				users[j].results[tasks[i]] = 0;
-			output += "<th><font color="+userColors[j]+">" + users[j].results[tasks[i]] + "</font></th>";
+			output += "<th><font color=\"white\">" + users[j].results[tasks[i]] + "</font></th>";
 		}
 		output += "</tr>";
 	}

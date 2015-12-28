@@ -1,3 +1,7 @@
 *.swp
 uploadDir/*
 node_modules/*
+tags
+results_tasks
+results_users
+checkers/*
