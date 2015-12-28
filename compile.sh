@@ -12,6 +12,10 @@ then
 	#exit
 fi
 
-echo "c++ $CXXFLAGS $fullPath -o $notFullPath"
-c++ $CXXFLAGS $fullPath -o $notFullPath
+echo "Compiling with C compiler flags: $CXXFLAGS"
+if timeout 10 c++ $CXXFLAGS $fullPath -o $notFullPath
+	then echo "Compilation succesful"
+	else echo "Compilation timed out!"; exit;
+fi
+
 ./checkers/standart $notFullPath $task
