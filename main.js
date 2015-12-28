@@ -122,7 +122,7 @@ function addNewResult(name, task, strres)
 	}
 
 	var nu = {name:name, results:{}};
-	nu.results[task] = res;
+	nu.results[task] = result;
 	users.push(nu);
 
 	saveResults();
