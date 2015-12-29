@@ -64,13 +64,13 @@ function randStr()
 
 function saveResults()
 {
-	fs.writeFile(__dirname+"/results_tasks", JSON.stringify(tasks));
-	fs.writeFile(__dirname+"/results_users", JSON.stringify(users));
+	fs.writeFile(__dirname + "/results_tasks", JSON.stringify(tasks));
+	fs.writeFile(__dirname + "/results_users", JSON.stringify(users));
 }
 
 function readResults()
 {
-	fs.readFile(__dirname+"/results_tasks", "utf8", function(err, data)
+	fs.readFile(__dirname + "/results_tasks", "utf8", function(err, data)
 	{
 		if(!err)
 		{
@@ -79,7 +79,7 @@ function readResults()
 		}
 		console.log(err);
 	});
-	fs.readFile(__dirname+"/results_users", "utf8", function(err, data)
+	fs.readFile(__dirname + "/results_users", "utf8", function(err, data)
 	{
 		if(!err)
 		{
@@ -96,6 +96,12 @@ function addNewResult(name, task, strres)
 	var result = 0;
 	for(var i = 0;i < strres.length;++ i)
 	{
+		if(strres[i] < '0' || strres[i] > '9')
+		{
+			console.log("[ERROR] Invalid result for task", task, "by", name, ": ", strres);
+			console.log("There is probably an error in the checker for that task.");
+			return;
+		}
 		result *= 10;
 		result += (strres[i]-'0');
 	}
@@ -157,25 +163,26 @@ app.post("/", function(req, res) {
 	if(req.body.guysName == undefined || req.body.guysName == "")
 		req.body.guysName = "nobody";
 
-	var dir = __dirname+"/submissions/"+req.body.guysName;
+	var dir = __dirname + "/submissions/" + req.body.guysName;
 
-	if(fs.existsSync(__dirname+"/submissions") == false)
-		fs.mkdirSync(__dirname+"/submissions");
+	if(fs.existsSync(__dirname + "/submissions") == false)
+		fs.mkdirSync(__dirname + "/submissions");
 
 	if(fs.existsSync(dir) == false)
 		fs.mkdirSync(dir);
 
-	dir += ("/"+req.body.task);
+	dir += "/" + req.body.task;
 	if(fs.existsSync(dir) == false)
 		fs.mkdirSync(dir);
 
 	var commitId = randStr();
-	var completeFileName = dir+"/"+commitId+".cpp";
+	var completeFileName = dir + "/" + commitId + ".cpp";
 	fs.writeFile(completeFileName, req.body.sourceInput, function(err) {});
 
-	console.log("Submission accepted by", req.body.guysName, "on task", req.body.task, "with id", commitId);
-	cp(__dirname+"/compile.sh "+completeFileName+" "+req.body.task,
-		function(err, stdout, stderr) {
+	console.log("[INFO] Submission accepted by", req.body.guysName, "on task", req.body.task, "with id", commitId);
+	var command = __dirname + "/compile.sh " + completeFileName + " " + req.body.task + " standart";
+
+	cp(command, function(err, stdout, stderr) {
 			var output = "";
 			var lines = stdout.split("\n");
 			for(var i = 0;i < lines.length;++ i)
