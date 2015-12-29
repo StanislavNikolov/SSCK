@@ -4,12 +4,19 @@ tmpfile=`mktemp`
 task=$2
 
 declare -A testCount
-testCount["task001"]=10
-testCount["task002"]=12
-testCount["task003"]=16
-testCount["task004"]=10
-testCount["task005"]=10
-testCount["task006"]=10
+declare -A timeLimit
+
+while read i; do
+	first=`echo $i | awk '{print \$1}'`
+	second=`echo $i | awk '{print \$2}'`
+	testCount[$first]=$second
+done < checkers/settings/test_count;
+
+while read i; do
+	first=`echo $i | awk '{print \$1}'`
+	second=`echo $i | awk '{print \$2}'`
+	timeLimit[$first]=$second
+done < checkers/settings/time_limit;
 
 maxPoints=${testCount[$task]}
 currentPoints=$maxPoints
@@ -27,7 +34,7 @@ function fail_wrong {
 for number in `seq 1 $maxPoints`
 do
 	echo "==== Test $number ===="
-	if timeout 0.5 $1 < checkers/tests/$task/$number.in > $tmpfile
+	if timeout ${timeLimit[$task]} $1 < checkers/tests/$task/$number.in > $tmpfile
 	then
 		diff -qb checkers/tests/$task/$number.out $tmpfile > /dev/null || fail_wrong
 	else
@@ -36,5 +43,7 @@ do
 done;
 
 echo "<h2> Result: $currentPoints/$maxPoints </h2>"
+
+# The line after __SSCK_RES_PACK__ is the actual score showed on the results
 echo "__SSCK_RES_PACK__"
 echo "$currentPoints"
