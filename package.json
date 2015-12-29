@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Stanislav Nikolov <stanislav.ltb@gmail.com>",
-  "license": "GPL-3.0",
+  "license": "GPL-2.0",
   "dependencies": {
     "body-parser": "^1.14.2",
     "express": "^4.13.3"

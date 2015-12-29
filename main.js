@@ -2,8 +2,6 @@ var app = require("express")();
 var cp = require("child_process").exec;
 var config = require("./config.json");
 
-console.log(config);
-
 var bodyParser = require("body-parser");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -13,6 +11,7 @@ var fs = require("fs");
 var results = {};
 app.get("/", function(req, res) {
 	res.sendFile(__dirname+"/index.html");
+	// TODO render index.html dinamically
 });
 
 var users = [];
@@ -20,10 +19,8 @@ var tasks = [];
 readResults();
 
 app.get("/results", function(req, res) {
-	var output = "<center><table>";
-	output += "<caption><font size=10><b> RESULTS <b></font></caption>";
+	var output = "<center><table><caption><font size=10><b> RESULTS <b></font></caption><tr><th></th>";
 
-	output += "<tr><th></th>";
 	for(var i in users)
 		output += "<th bgcolor=\"black\" width=100><font size=5 color=\"white\">" + users[i].name + "</font></th>";
 	output += "</tr>";
@@ -49,8 +46,7 @@ app.get("/results", function(req, res) {
 			total += users[i].results[j];
 		output += "<th><font color=\"white\">" + total + "</font></th>";
 	}
-	output += "</tr>";
-	output += "</table></center>";
+	output += "</tr></table></center>";
 	res.send(output);
 });
 
@@ -161,10 +157,10 @@ app.post("/", function(req, res) {
 	if(req.body.guysName == undefined || req.body.guysName == "")
 		req.body.guysName = "nobody";
 
-	var dir = __dirname+"/uploadDir/"+req.body.guysName;
+	var dir = __dirname+"/submissions/"+req.body.guysName;
 
-	if(fs.existsSync(__dirname+"/uploadDir") == false)
-		fs.mkdirSync(__dirname+"/uploadDir");
+	if(fs.existsSync(__dirname+"/submissions") == false)
+		fs.mkdirSync(__dirname+"/submissions");
 
 	if(fs.existsSync(dir) == false)
 		fs.mkdirSync(dir);
@@ -184,7 +180,7 @@ app.post("/", function(req, res) {
 			var lines = stdout.split("\n");
 			for(var i = 0;i < lines.length;++ i)
 			{
-				if(lines[i] == "__SSCK_RES_PACK__")
+				if(lines[i] == "__SSCK_RES_PACK__") // TODO documentation
 					addNewResult(req.body.guysName, req.body.task, lines[++ i]);
 				else
 					output += lines[i] + "<br>";
