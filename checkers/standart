@@ -29,7 +29,7 @@ do
 	echo "==== Test $number ===="
 	if timeout 0.5 $1 < checkers/tests/$task/$number.in > $tmpfile
 	then
-		diff -q checkers/tests/$task/$number.out $tmpfile > /dev/null || fail_wrong
+		diff -qb checkers/tests/$task/$number.out $tmpfile > /dev/null || fail_wrong
 	else
 		fail_timeout
 	fi

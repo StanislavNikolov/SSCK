@@ -1,0 +1,8 @@
+{
+	"users":
+	{
+		"onlyAllowed":true,
+		"allowed":
+		["coolUser", "John_Doe"]
+	}
+}

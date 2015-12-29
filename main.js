@@ -1,5 +1,8 @@
 var app = require("express")();
 var cp = require("child_process").exec;
+var config = require("./config.json");
+
+console.log(config);
 
 var bodyParser = require("body-parser");
 app.use(bodyParser.json());
@@ -138,6 +141,23 @@ function addNewResult(name, task, strres)
 }
 
 app.post("/", function(req, res) {
+	if(config.users.onlyAllowed)
+	{
+		var isAllowed = false;
+		for(var i in config.users.allowed)
+		{
+			if(req.body.guysName == config.users.allowed[i])
+			{
+				isAllowed = true;
+				break;
+			}
+		}
+		if(!isAllowed)
+		{
+			res.send("User not allowed to exist!<br>");
+			return;
+		}
+	}
 	if(req.body.guysName == undefined || req.body.guysName == "")
 		req.body.guysName = "nobody";
 
