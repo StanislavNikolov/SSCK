@@ -41,4 +41,4 @@ echo "<h2> Result: $((maxPoints-$fails))/$maxPoints </h2>"
 
 # The line after __SSCK_RES_PACK__ is the actual score showed on the results
 echo "__SSCK_RES_PACK__"
-echo "$currentPoints"
+echo "$((maxPoints-$fails))"
