@@ -3,14 +3,7 @@
 tmpfile=`mktemp`
 task=$2
 
-declare -A testCount
 declare -A timeLimit
-
-while read i; do
-	first=`echo $i | awk '{print \$1}'`
-	second=`echo $i | awk '{print \$2}'`
-	testCount[$first]=$second
-done < checkers/settings/test_count;
 
 while read i; do
 	first=`echo $i | awk '{print \$1}'`
@@ -18,31 +11,33 @@ while read i; do
 	timeLimit[$first]=$second
 done < checkers/settings/time_limit;
 
-maxPoints=${testCount[$task]}
-currentPoints=$maxPoints
+maxPoints=0
+fails=0
 
 function fail_timeout {
 	echo "Timeout"
-	currentPoints=$((currentPoints-1))
+	fails=$((fails+1))
 }
 
 function fail_wrong {
 	echo "Wrong answer"
-	currentPoints=$((currentPoints-1))
+	fails=$((fails+1))
 }
 
-for number in `seq 1 $maxPoints`
+for test in checkers/tests/$task/*.in
 do
-	echo "==== Test $number ===="
-	if timeout ${timeLimit[$task]} $1 < checkers/tests/$task/$number.in > $tmpfile
+	echo "==== `basename $test` ===="
+	maxPoints=$((maxPoints+1))
+	if timeout ${timeLimit[$task]} $1 < $test > $tmpfile
 	then
-		diff -qb checkers/tests/$task/$number.out $tmpfile > /dev/null || fail_wrong
+		out=`basename -s .in $test`.out
+		diff -qb checkers/tests/$task/$out $tmpfile > /dev/null || fail_wrong
 	else
 		fail_timeout
 	fi
 done;
 
-echo "<h2> Result: $currentPoints/$maxPoints </h2>"
+echo "<h2> Result: $((maxPoints-$fails))/$maxPoints </h2>"
 
 # The line after __SSCK_RES_PACK__ is the actual score showed on the results
 echo "__SSCK_RES_PACK__"
