@@ -143,12 +143,14 @@ function addNewResult(name, task, strres)
 }
 
 app.post("/", function(req, res) {
+	var username = req.body.guysName;
+
 	if(config.users.onlyAllowed)
 	{
 		var isAllowed = false;
 		for(var i in config.users.allowed)
 		{
-			if(req.body.guysName == config.users.allowed[i])
+			if(username == config.users.allowed[i])
 			{
 				isAllowed = true;
 				break;
@@ -160,10 +162,22 @@ app.post("/", function(req, res) {
 			return;
 		}
 	}
-	if(req.body.guysName == undefined || req.body.guysName == "")
-		req.body.guysName = "nobody";
 
-	var dir = __dirname + "/submissions/" + req.body.guysName;
+	// Remove illegal characters from the username
+	for(var idx in req.body.guysName)
+	{
+		var chr = req.body.guysName[idx];
+		if(!(chr >= 'a' && chr <= 'z') && !(chr >= 'A' && chr <= 'Z') && !(chr >= '0' && chr <= '9'))
+		{
+			res.send("Illegal character used!<br> This username looks better anyways: " + username.replace(/[^0-9a-zA-Z]/g, '_'));
+			return;
+		}
+	}
+
+	if(username == undefined || username == "")
+		username = "nobody"; // TODO use a username from config
+
+	var dir = __dirname + "/submissions/" + username;
 
 	if(fs.existsSync(__dirname + "/submissions") == false)
 		fs.mkdirSync(__dirname + "/submissions");
@@ -179,7 +193,7 @@ app.post("/", function(req, res) {
 	var completeFileName = dir + "/" + commitId + ".cpp";
 	fs.writeFile(completeFileName, req.body.sourceInput, function(err) {});
 
-	console.log("[INFO] Submission accepted by", req.body.guysName, "on task", req.body.task, "with id", commitId);
+	console.log("[INFO] Submission accepted by", username, "on task", req.body.task, "with id", commitId);
 	var command = __dirname + "/compile.sh " + completeFileName + " " + req.body.task + " standart";
 
 	cp(command, function(err, stdout, stderr) {
@@ -188,7 +202,7 @@ app.post("/", function(req, res) {
 			for(var i = 0;i < lines.length;++ i)
 			{
 				if(lines[i] == "__SSCK_RES_PACK__") // TODO documentation
-					addNewResult(req.body.guysName, req.body.task, lines[++ i]);
+					addNewResult(username, req.body.task, lines[++ i]);
 				else
 					output += lines[i] + "<br>";
 			}
