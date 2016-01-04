@@ -1,8 +1,8 @@
 {
 	"users":
 	{
-		"onlyAllowed":true,
-		"allowed":
+		"only_allowed":false,
+		"allowed_user_list":
 		["coolUser", "John_Doe"]
 	}
 }

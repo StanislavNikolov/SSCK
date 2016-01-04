@@ -145,10 +145,10 @@ function addNewResult(name, task, strres)
 app.post("/", function(req, res) {
 	var username = req.body.guysName;
 
-	if(config.users.onlyAllowed)
+	if(config.users.only_allowed)
 	{
 		var isAllowed = false;
-		for(var i in config.users.allowed)
+		for(var i in config.users.allowed_user_list)
 		{
 			if(username == config.users.allowed[i])
 			{
@@ -158,9 +158,15 @@ app.post("/", function(req, res) {
 		}
 		if(!isAllowed)
 		{
-			res.send("User not allowed to exist!<br>");
+			res.send("Username not whitelisted!<br>");
 			return;
 		}
+	}
+
+	if(username == undefined || username == "")
+	{
+		res.send("No username supplied!<br>");
+		return;
 	}
 
 	// Remove illegal characters from the username
@@ -173,9 +179,6 @@ app.post("/", function(req, res) {
 			return;
 		}
 	}
-
-	if(username == undefined || username == "")
-		username = "nobody"; // TODO use a username from config
 
 	var dir = __dirname + "/submissions/" + username;
 
@@ -190,7 +193,7 @@ app.post("/", function(req, res) {
 		fs.mkdirSync(dir);
 
 	var commitId = randStr();
-	var completeFileName = dir + "/" + commitId + ".cpp";
+	var completeFileName = dir + "/" + commitId + ".cpp"; // TODO generate more logical name (date, hash)
 	fs.writeFile(completeFileName, req.body.sourceInput, function(err) {});
 
 	console.log("[INFO] Submission accepted by", username, "on task", req.body.task, "with id", commitId);
