@@ -1,10 +1,14 @@
 var app = require("express")();
 var cp = require("child_process").exec;
 var config = require("./config.json");
-
 var bodyParser = require("body-parser");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+if(config == undefined) { config = {}; }
+if(config.users == undefined) { config.users = {} };
+if(config.users.only_allowed == undefined) { config.users.only_allowed = false };
+if(config.users.allowed_user_list == undefined) { config.users.allowed_user_list = []; };
 
 var fs = require("fs");
 
