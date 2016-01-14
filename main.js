@@ -154,7 +154,7 @@ app.post("/", function(req, res) {
 		var isAllowed = false;
 		for(var i in config.users.allowed_user_list)
 		{
-			if(username == config.users.allowed[i])
+			if(username == config.users.allowed_user_list[i])
 			{
 				isAllowed = true;
 				break;
