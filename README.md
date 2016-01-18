@@ -1,6 +1,8 @@
 Simple Source Controller for Kiten
 =======
 
+**This project has severe security issues. Refrain from using it on 'real world' situations**
+
 # Introduction
 SSCK is a simple scoring system designed for small contests that need to be easy to set up. It's written in JavaScript (page rendering and user management) and bash (starting the tasks with different tests/limits). All you need is a POSIX-compatible OS (GNU, OS X) and nodejs.
 
