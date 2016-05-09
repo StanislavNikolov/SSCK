@@ -24,21 +24,32 @@ function fail_wrong {
 	fails=$((fails+1))
 }
 
-for test in checkers/tests/$task/*.in
+for test in checkers/tests/$task/tests/*.in
 do
 	echo "==== `basename $test` ===="
-	maxPoints=$((maxPoints+1))
-	if timeout ${timeLimit[$task]} $1 < $test > $tmpfile
+
+	regexp='*.00'
+	str="`basename -s .in $test`"
+
+	if [[ ! $str =~ ".00" ]]
 	then
-		out=`basename -s .in $test`.out
-		diff -qb checkers/tests/$task/$out $tmpfile > /dev/null || fail_wrong
+		maxPoints=$((maxPoints+1))
+		if timeout ${timeLimit[$task]} $1 < $test > $tmpfile
+		then
+			out=`basename -s .in $test`.sol
+			diff -qb checkers/tests/$task/tests/$out $tmpfile > /dev/null || fail_wrong
+		else
+			fail_timeout
+		fi
 	else
-		fail_timeout
+		echo "Probably a test case. Ignoring..."
 	fi
 done;
 
-echo "<h2> Result: $((maxPoints-$fails))/$maxPoints </h2>"
+succsessful=$((maxPoints-$fails))
+output=`python -c "print(round(100 / $maxPoints * $succsessful))"`
+printf "<h2> Result: %d - %d/%d <h2>\n" $output $succsessful $maxPoints
 
 # The line after __SSCK_RES_PACK__ is the actual score showed on the results
 echo "__SSCK_RES_PACK__"
-echo "$((maxPoints-$fails))"
+echo $output
