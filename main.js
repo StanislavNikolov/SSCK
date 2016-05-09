@@ -201,7 +201,7 @@ app.post("/", function(req, res) {
 	fs.writeFile(completeFileName, req.body.sourceInput, function(err) {});
 
 	console.log("[INFO] Submission accepted by", username, "on task", req.body.task, "with id", commitId);
-	var command = __dirname + "/compile.sh " + completeFileName + " " + req.body.task + " standart";
+	var command = __dirname + "/compile.sh " + completeFileName + " " + req.body.task + " standard";
 
 	cp(command, function(err, stdout, stderr) {
 			var output = "";
