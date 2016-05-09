@@ -28,9 +28,7 @@ for test in checkers/tests/$task/tests/*.in
 do
 	echo "==== `basename $test` ===="
 
-	regexp='*.00'
 	str="`basename -s .in $test`"
-
 	if [[ ! $str =~ ".00" ]]
 	then
 		maxPoints=$((maxPoints+1))
