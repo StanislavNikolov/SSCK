@@ -15,19 +15,21 @@ maxPoints=0
 fails=0
 
 function fail_timeout {
-	echo "Timeout"
+	echo "`basename $1`: <font color=\"brown\">Timeout</font>"
 	fails=$((fails+1))
 }
 
 function fail_wrong {
-	echo "Wrong answer"
+	echo "`basename $1`: <font color=\"brown\">Wrong answer</font>"
 	fails=$((fails+1))
+}
+
+function prn_ok {
+	echo "`basename $1`: <font color=\"green\">OK</font>"
 }
 
 for test in checkers/tests/$task/tests/*.in
 do
-	echo "==== `basename $test` ===="
-
 	str="`basename -s .in $test`"
 	if [[ ! $str =~ ".00" ]]
 	then
@@ -35,12 +37,10 @@ do
 		if timeout ${timeLimit[$task]} $1 < $test > $tmpfile
 		then
 			out=`basename -s .in $test`.sol
-			diff -qb checkers/tests/$task/tests/$out $tmpfile > /dev/null || fail_wrong
+			(diff -qb checkers/tests/$task/tests/$out $tmpfile > /dev/null && prn_ok $test) || fail_wrong $test
 		else
-			fail_timeout
+			fail_timeout $test
 		fi
-	else
-		echo "Probably a test case. Ignoring..."
 	fi
 done;
 

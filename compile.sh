@@ -10,7 +10,7 @@ CXXFLAGS="-O2 -std=c++14"
 echo "Compiling with C compiler flags: $CXXFLAGS"
 if timeout 20 c++ $CXXFLAGS $fullPath -o $notFullPath
 	then echo "Compilation succesful"
-	else echo "Compilation failed (probably invalid source code)!"; exit;
+	else echo "<font color=\"brown\">Compilation failed!</font>"; exit;
 fi
 
 ./checkers/$checker $notFullPath $task
