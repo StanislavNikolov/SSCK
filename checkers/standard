@@ -51,3 +51,5 @@ printf "<h2> Result: %d - %d/%d <h2>\n" $output $succsessful $maxPoints
 # The line after __SSCK_RES_PACK__ is the actual score showed on the results
 echo "__SSCK_RES_PACK__"
 echo $output
+
+rm $tmpfile
