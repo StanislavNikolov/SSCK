@@ -1,6 +1,7 @@
 #!/bin/bash
 
 tmpfile=`mktemp`
+sstmp=`mktemp` # system status tmp file
 task=$2
 
 declare -A timeLimit
@@ -15,17 +16,17 @@ maxPoints=0
 fails=0
 
 function fail_timeout {
-	echo "`basename $1`: <font color=\"brown\">Timeout</font>"
+	echo -n "`basename $1`: <font color=\"brown\">Timeout</font>"
 	fails=$((fails+1))
 }
 
 function fail_wrong {
-	echo "`basename $1`: <font color=\"brown\">Wrong answer</font>"
+	echo -n "`basename $1`: <font color=\"brown\">Wrong answer</font>"
 	fails=$((fails+1))
 }
 
 function prn_ok {
-	echo "`basename $1`: <font color=\"green\">OK</font>"
+	echo -n "`basename $1`: <font color=\"green\">OK</font>"
 }
 
 for test in checkers/tests/$task/tests/*.in
@@ -34,13 +35,14 @@ do
 	if [[ ! $str =~ ".00" ]]
 	then
 		maxPoints=$((maxPoints+1))
-		if timeout ${timeLimit[$task]} $1 < $test > $tmpfile
+		if timeout ${timeLimit[$task]} sh -c "TIMEFORMAT=%3R; time ($1 < $test &> $tmpfile) &> $sstmp"
 		then
 			out=`basename -s .in $test`.sol
-			(diff -qb checkers/tests/$task/tests/$out $tmpfile > /dev/null && prn_ok $test) || fail_wrong $test
+			(diff -qb checkers/tests/$task/tests/$out $tmpfile > /dev/null && prn_ok $test && echo -n " - `cat $sstmp` seconds. ") || fail_wrong $test
 		else
 			fail_timeout $test
 		fi
+		echo ""
 	fi
 done;
 
@@ -53,3 +55,4 @@ echo "__SSCK_RES_PACK__"
 echo $output
 
 rm $tmpfile
+rm $sstmp
