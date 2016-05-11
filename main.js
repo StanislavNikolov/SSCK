@@ -200,19 +200,25 @@ app.post("/", function(req, res) {
 	var completeFileName = dir + "/" + commitId + ".cpp"; // TODO generate more logical name (date, hash)
 	fs.writeFile(completeFileName, req.body.sourceInput, function(err) {});
 
-	console.log("[INFO] Submission accepted by", username, "on task", req.body.task, "with id", commitId);
+	console.log("[INFO]", new Date(), "Submission accepted by", username, "on task", req.body.task, "with id", commitId);
 	var command = __dirname + "/compile.sh " + completeFileName + " " + req.body.task + " standard";
 
 	cp(command, function(err, stdout, stderr) {
 			var output = "";
 			var lines = stdout.split("\n");
+			var result = 0;
 			for(var i = 0;i < lines.length;++ i)
 			{
 				if(lines[i] == "__SSCK_RES_PACK__") // TODO documentation
-					addNewResult(username, req.body.task, lines[++ i]);
+				{
+					i ++;
+					result = lines[i];
+					addNewResult(username, req.body.task, lines[i]);
+				}
 				else
 					output += lines[i] + "<br>";
 			}
+			console.log("[INFO]", new Date(), "Submission with id", commitId, "got score", result);
 			res.send(output);
 	});
 });
