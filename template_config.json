@@ -4,5 +4,9 @@
 		"only_allowed":false,
 		"allowed_user_list":
 		["coolUser", "John_Doe"]
+	},
+	"checkers":
+	{
+		"task-with_weird123-name": "some_checker-maybeawrapper"
 	}
 }
