@@ -201,7 +201,11 @@ app.post("/", function(req, res) {
 	fs.writeFile(completeFileName, req.body.sourceInput, function(err) {});
 
 	console.log("[INFO]", new Date(), "Submission accepted by", username, "on task", req.body.task, "with id", commitId);
-	var command = __dirname + "/compile.sh " + completeFileName + " " + req.body.task + " standard";
+
+	var checker = "standard";
+	if(config.checkers[req.body.task] !== undefined && config.checkers[req.body.task] !== "")
+		checker = config.checkers[req.body.task];
+	var command = __dirname + "/compile.sh " + completeFileName + " " + req.body.task + " " + checker;
 
 	cp(command, function(err, stdout, stderr) {
 			var output = "";
