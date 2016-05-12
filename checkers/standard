@@ -12,6 +12,9 @@ while read i; do
 	timeLimit[$first]=$second
 done < checkers/settings/time_limit;
 
+[ ${timeLimit[$task]+abc} ] || (echo "Internal system error. Please refresh the main submission page." && exit 1)
+if [[ $? == 1 ]]; then exit 1; fi
+
 maxPoints=0
 fails=0
 
