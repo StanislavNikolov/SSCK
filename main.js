@@ -23,6 +23,7 @@ var tasks = [];
 readResults();
 
 app.get("/results", function(req, res) {
+	saveResults();
 	var output = "<center><table><caption><font size=10><b> RESULTS <b></font></caption><tr><th></th>";
 
 	for(var i in users)
@@ -42,14 +43,11 @@ app.get("/results", function(req, res) {
 		}
 		output += "</tr>";
 	}
+
 	output += "<tr bgcolor=\"blue\"><th>total</th>";
 	for(var i in users)
-	{
-		var total = 0;
-		for(var j in users[i].results)
-			total += users[i].results[j];
-		output += "<th><font color=\"white\">" + total + "</font></th>";
-	}
+		output += "<th><font color=\"white\">" + users[i].total + "</font></th>";
+
 	output += "</tr></table></center>";
 	res.send(output);
 });
@@ -88,6 +86,7 @@ function readResults()
 		if(!err)
 		{
 			users = JSON.parse(data);
+			users.sort(function(u1, u2) { return u1.total < u2.total; } );
 			return;
 		}
 		console.log(err);
@@ -133,13 +132,17 @@ function addNewResult(name, task, strres)
 			if(users[i].results[task] == undefined || result > users[i].results[task])
 			{
 				users[i].results[task] = result;
+				users[i].total = 0;
+				for(var j in users[i].results)
+					users[i].total += users[i].results[j];
+				users.sort(function(u1, u2) { return u1.total < u2.total; } );
 				saveResults();
 			}
 			return;
 		}
 	}
 
-	var nu = {name:name, results:{}};
+	var nu = {name:name, results:{}, total: result};
 	nu.results[task] = result;
 	users.push(nu);
 
