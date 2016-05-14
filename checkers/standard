@@ -1,35 +1,67 @@
 #!/bin/bash
 
-tmpfile=`mktemp`
-sstmp=`mktemp` # system status tmp file
 task=$2
 
 declare -A timeLimit
 
 while read i; do
-	first=`echo $i | awk '{print \$1}'`
-	second=`echo $i | awk '{print \$2}'`
-	timeLimit[$first]=$second
+	name=`echo $i | awk '{print \$1}'`
+	limit=`echo $i | awk '{print \$2}'`
+	timeLimit[$name]=$limit
 done < checkers/settings/time_limit;
 
-[ ${timeLimit[$task]+abc} ] || (echo "Internal system error. Please refresh the main submission page." && exit 1)
+[ ${timeLimit[$task]+abc} ] || (echo "Internal system error. Please refresh the main submission page. (Missing time limit info)" && exit 1)
 if [[ $? == 1 ]]; then exit 1; fi
 
-maxPoints=0
-fails=0
+
+groupSize=1
+while read i; do
+	name=`echo $i | awk '{print \$1}'`
+	gtype=`echo $i | awk '{print \$2}'`
+	if [[ "$gtype" == "simple" ]]
+	then
+		groupSize=`echo $i | awk '{print \$3}'`
+	else
+		echo "Internal system error. Please refresh the main submission page. (Wrong grouping configuration)" && exit 1
+	fi
+done < checkers/settings/grouping;
+
+correctGroups=0
+
+currGroup=1
+currTestInGroup=1
+failsInCurrGroup=0
+
+tmpfile=`mktemp`
+sstmp=`mktemp` # system status tmp file
+
+function fixGroups {
+	if (( $currTestInGroup == $groupSize ))
+	then
+		if (( $failsInCurrGroup == 0 ))
+		then
+			correctGroups=$((correctGroups+1))
+		fi
+		currTestInGroup=1
+		failsInCurrGroup=0
+		currGroup=$((currGroup+1))
+	else
+		currTestInGroup=$((currTestInGroup+1))
+	fi
+}
 
 function fail_timeout {
 	echo -n "`basename $1`: <font color=\"brown\">Timeout</font>"
-	fails=$((fails+1))
+	failsInCurrGroup=$((failsInCurrGroup+1))
 }
 
 function fail_wrong {
 	echo -n "`basename $1`: <font color=\"brown\">Wrong answer</font>"
-	fails=$((fails+1))
+	failsInCurrGroup=$((failsInCurrGroup+1))
 }
 
 function prn_ok {
-	echo -n "`basename $1`: <font color=\"green\">OK</font>"
+	echo -n "`basename $1`: <font color=\"green\">OK</font> - `cat $sstmp` seconds."
 }
 
 for test in checkers/tests/$task/tests/*.in
@@ -37,21 +69,21 @@ do
 	str="`basename -s .in $test`"
 	if [[ ! $str =~ ".00" ]]
 	then
-		maxPoints=$((maxPoints+1))
 		if timeout ${timeLimit[$task]} sh -c "TIMEFORMAT=%3R; time ($1 < $test &> $tmpfile) &> $sstmp"
 		then
 			out=`basename -s .in $test`.sol
-			(diff -qb checkers/tests/$task/tests/$out $tmpfile > /dev/null && prn_ok $test && echo -n " - `cat $sstmp` seconds. ") || fail_wrong $test
+			(diff -qb checkers/tests/$task/tests/$out $tmpfile > /dev/null && prn_ok $test) || fail_wrong $test
 		else
 			fail_timeout $test
 		fi
+		fixGroups
 		echo ""
 	fi
 done;
 
-succsessful=$((maxPoints-$fails))
-output=`python -c "print(round(100 / $maxPoints * $succsessful))"`
-printf "<h2> Result: %d - %d/%d <h2>\n" $output $succsessful $maxPoints
+currGroup=$((currGroup-1))
+output=`python -c "print(round(100 / $currGroup * $correctGroups))"`
+printf "<h2> Result: %d - %d/%d <h2>\n" $output $correctGroups $currGroup
 
 # The line after __SSCK_RES_PACK__ is the actual score showed on the results
 echo "__SSCK_RES_PACK__"
