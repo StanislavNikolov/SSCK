@@ -21,6 +21,10 @@ while read i; do
 	if [[ "$gtype" == "simple" ]]
 	then
 		groupSize=`echo $i | awk '{print \$3}'`
+		if [[ "$name" != "$task" ]]
+		then
+			groupSize=1
+		fi
 	else
 		echo "Internal system error. Please refresh the main submission page. (Wrong grouping configuration)" && exit 1
 	fi
@@ -41,6 +45,10 @@ function fixGroups {
 		if (( $failsInCurrGroup == 0 ))
 		then
 			correctGroups=$((correctGroups+1))
+		fi
+		if (( $groupSize != 1 ))
+		then
+			echo "-----------------------------"
 		fi
 		currTestInGroup=1
 		failsInCurrGroup=0
@@ -76,8 +84,8 @@ do
 		else
 			fail_timeout $test
 		fi
-		fixGroups
 		echo ""
+		fixGroups
 	fi
 done;
 
