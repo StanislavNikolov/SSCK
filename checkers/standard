@@ -74,8 +74,8 @@ function prn_ok {
 
 for test in checkers/tests/$task/tests/*.in
 do
-	str="`basename -s .in $test`"
-	if [[ ! $str =~ ".00" ]]
+	str="$test"
+	if [[ ! $str =~ "00.in" ]]
 	then
 		if timeout ${timeLimit[$task]} sh -c "TIMEFORMAT=%3R; time ($1 < $test &> $tmpfile) &> $sstmp"
 		then
