@@ -2,19 +2,25 @@
 <head>
 	<title> SSCK </title>
 	<meta charset="utf-8"></meta>
+	<link href="/style.css" rel="stylesheet">
 </head>
 <body>
-	<div id="mainWindow" style="width:100%;height:99%">
-		<form action="" method="post"><br>
+	<form action="" method="post">
+		<div id="nameAndSubmit">
 			Name:<input/ name="guysName">
-				<select name="task">
-					{{#each tasks}}
-					<option value="{{this.internal_name}}">{{this.ff_name}}</option>
-					{{/each}}
-				</select>
 			<input type="submit" value="Submit"/>
-			<textarea name="sourceInput" style="width:100%;height:92%"></textarea><br>
-		</form>
-	</div>
+		</div>
+		<div id="taskListWrapper">
+		<ul id="taskList">
+			{{#each tasks}}
+			<li>
+				<input name="task" type="radio" value="{{this.internal_name}}" id="t{{@index}}">
+				<label for="t{{@index}}">{{this.ff_name}}</label>
+			</li>
+			{{/each}}
+		</ul>
+		</div>
+		<textarea name="sourceInput"></textarea>
+	</form>
 </body>
 </html>
