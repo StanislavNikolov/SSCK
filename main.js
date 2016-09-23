@@ -46,37 +46,9 @@ app.get("/style.css", function(req, res) {
 });
 
 readResults();
+renderResultsPage();
 
 app.get("/results", function(req, res) {
-	saveResults();
-	/*
-	var output = "<center><table><caption><font size=10><b> RESULTS <b></font></caption><tr><th></th>";
-
-	for(var i in users)
-		output += "<th bgcolor=\"black\" width=100><font size=5 color=\"white\">" + users[i].name + "</font></th>";
-	output += "</tr>";
-
-	var colors = ["#6d6c6c", "#898989"];
-
-	for(var i in tasks)
-	{
-		output += "<tr bgcolor="+colors[i%colors.length]+"><th>" + tasks[i] + "</th>";
-		for(var j in users)
-		{
-			if(users[j].results[tasks[i]] == undefined)
-				users[j].results[tasks[i]] = 0;
-			output += "<th><font color=\"white\">" + users[j].results[tasks[i]] + "</font></th>";
-		}
-		output += "</tr>";
-	}
-
-	output += "<tr bgcolor=\"blue\"><th>total</th>";
-	for(var i in users)
-		output += "<th><font color=\"white\">" + users[i].total + "</font></th>";
-
-	output += "</tr></table></center>";
-	res.send(output);
-	*/
 	res.send(resultsPage);
 });
 
@@ -122,7 +94,6 @@ function readResults()
 				}
 				console.log(err);
 			});
-	renderResultsPage();
 }
 
 function addNewResult(name, task, strres)
@@ -179,6 +150,7 @@ function addNewResult(name, task, strres)
 	users.push(nu);
 
 	saveResults();
+	renderResultsPage();
 }
 
 app.post("/", function(req, res) {

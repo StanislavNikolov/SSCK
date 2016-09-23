@@ -1,15 +1,32 @@
+html {
+	background-color: #ddd;
+}
 table, th, td {
-	border: 1px solid black;
+	border: 1px solid #ddd;
+	border-top: none;
+	border-left: none;
 	border-collapse: collapse;
-	text-align: left;
+	text-align: center;
+	font-size: large;
+}
+
+#usernameRow {
+	background-color: #aaa;
+}
+
+table {
 	width: 100%;
 }
 
-table tr:nth-child(even) {
+th, td {
+	width: 7em;
+}
+
+table tr:nth-child(2n) {
     background-color: #eee;
 }
-table tr:nth-child(odd) {
-   background-color:#fff;
+table tr:nth-child(2n+1) {
+   background-color: #fff;
 }
 
 #taskName {
