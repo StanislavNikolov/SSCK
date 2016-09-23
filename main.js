@@ -12,30 +12,44 @@ if(config.users.allowed_user_list == undefined) { config.users.allowed_user_list
 
 var handlebars = require("handlebars");
 var fs = require("fs");
-var indexPage = "";
+var indexPage = "", resultsPage = "";
+var users = [];
+var tasks = [];
 
-cp(__dirname + "/gen_tasklist.sh", function(err, stdout, stderr) {
-	fs.readFile(stdout, "utf-8", function(error, json) {
-		var data = JSON.parse(json);
-		console.log(data);
-		fs.readFile("template.html", "utf-8", function(error, source) {
-			var template = handlebars.compile(source);
-			indexPage = template(data);
+function renderIndexPage()
+{
+	cp(__dirname + "/gen_tasklist.sh", function(err, stdout, stderr) {
+		fs.readFile(stdout, "utf-8", function(error, json) {
+			var data = JSON.parse(json);
+			fs.readFile("index_template.html", "utf-8", function(error, source) {
+				var template = handlebars.compile(source);
+				indexPage = template(data);
+			});
 		});
 	});
-});
+}
+renderIndexPage();
 
-var results = {};
+function renderResultsPage()
+{
+	fs.readFile("results_template.html", "utf-8", function(error, source) {
+		var template = handlebars.compile(source);
+		resultsPage = template({users: users, tasks: tasks});
+	});
+}
+
 app.get("/", function(req, res) {
 	res.send(indexPage);
 });
+app.get("/style.css", function(req, res) {
+	res.sendFile(__dirname + "/style.css");
+});
 
-var users = [];
-var tasks = [];
 readResults();
 
 app.get("/results", function(req, res) {
 	saveResults();
+	/*
 	var output = "<center><table><caption><font size=10><b> RESULTS <b></font></caption><tr><th></th>";
 
 	for(var i in users)
@@ -62,6 +76,8 @@ app.get("/results", function(req, res) {
 
 	output += "</tr></table></center>";
 	res.send(output);
+	*/
+	res.send(resultsPage);
 });
 
 var server = app.listen(3000, function() {
@@ -84,7 +100,8 @@ function saveResults()
 
 function readResults()
 {
-	fs.readFile(__dirname + "/results_tasks", "utf8", function(err, data)
+	fs.readFile(__dirname + "/results_tasks", "utf8",
+			function(err, data)
 			{
 				if(!err)
 				{
@@ -93,7 +110,9 @@ function readResults()
 				}
 				console.log(err);
 			});
-	fs.readFile(__dirname + "/results_users", "utf8", function(err, data)
+
+	fs.readFile(__dirname + "/results_users", "utf8",
+			function(err, data)
 			{
 				if(!err)
 				{
@@ -103,6 +122,7 @@ function readResults()
 				}
 				console.log(err);
 			});
+	renderResultsPage();
 }
 
 function addNewResult(name, task, strres)
