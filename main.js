@@ -10,12 +10,24 @@ if(config.users == undefined) { config.users = {} };
 if(config.users.only_allowed == undefined) { config.users.only_allowed = false };
 if(config.users.allowed_user_list == undefined) { config.users.allowed_user_list = []; };
 
+var handlebars = require("handlebars");
 var fs = require("fs");
+var indexPage = "";
+
+cp(__dirname + "/gen_tasklist.sh", function(err, stdout, stderr) {
+	fs.readFile(stdout, "utf-8", function(error, json) {
+		var data = JSON.parse(json);
+		console.log(data);
+		fs.readFile("template.html", "utf-8", function(error, source) {
+			var template = handlebars.compile(source);
+			indexPage = template(data);
+		});
+	});
+});
 
 var results = {};
 app.get("/", function(req, res) {
-	res.sendFile(__dirname+"/index.html");
-	// TODO render index.html dinamically
+	res.send(indexPage);
 });
 
 var users = [];
@@ -73,24 +85,24 @@ function saveResults()
 function readResults()
 {
 	fs.readFile(__dirname + "/results_tasks", "utf8", function(err, data)
-	{
-		if(!err)
-		{
-			tasks = JSON.parse(data);
-			return;
-		}
-		console.log(err);
-	});
+			{
+				if(!err)
+				{
+					tasks = JSON.parse(data);
+					return;
+				}
+				console.log(err);
+			});
 	fs.readFile(__dirname + "/results_users", "utf8", function(err, data)
-	{
-		if(!err)
-		{
-			users = JSON.parse(data);
-			users.sort(function(u1, u2) { return u1.total < u2.total; } );
-			return;
-		}
-		console.log(err);
-	});
+			{
+				if(!err)
+				{
+					users = JSON.parse(data);
+					users.sort(function(u1, u2) { return u1.total < u2.total; } );
+					return;
+				}
+				console.log(err);
+			});
 }
 
 function addNewResult(name, task, strres)
@@ -211,21 +223,21 @@ app.post("/", function(req, res) {
 	var command = __dirname + "/compile.sh " + completeFileName + " " + req.body.task + " " + checker;
 
 	cp(command, function(err, stdout, stderr) {
-			var output = "";
-			var lines = stdout.split("\n");
-			var result = 0;
-			for(var i = 0;i < lines.length;++ i)
+		var output = "";
+		var lines = stdout.split("\n");
+		var result = 0;
+		for(var i = 0;i < lines.length;++ i)
+		{
+			if(lines[i] == "__SSCK_RES_PACK__") // TODO documentation
 			{
-				if(lines[i] == "__SSCK_RES_PACK__") // TODO documentation
-				{
-					i ++;
-					result = lines[i];
-					addNewResult(username, req.body.task, lines[i]);
-				}
-				else
-					output += lines[i] + "<br>";
+				i ++;
+				result = lines[i];
+				addNewResult(username, req.body.task, lines[i]);
 			}
-			console.log("[INFO]", new Date(), "Submission with id", commitId, "got score", result);
-			res.send(output);
+			else
+				output += lines[i] + "<br>";
+		}
+		console.log("[INFO]", new Date(), "Submission with id", commitId, "got score", result);
+		res.send(output);
 	});
 });

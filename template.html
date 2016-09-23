@@ -4,19 +4,17 @@
 	<meta charset="utf-8"></meta>
 </head>
 <body>
-	<div id="mainWindow" style="width:100%;height:95%">
+	<div id="mainWindow" style="width:100%;height:99%">
 		<form action="" method="post"><br>
 			Name:<input/ name="guysName">
 				<select name="task">
-					<option value="task001">Task 1</option>
-					<option value="task002">Task 2</option>
-					<option value="task003">Task 3</option>
-					<option value="task004">A cooler name here :D</option>
+					{{#each tasks}}
+					<option value="{{this.internal_name}}">{{this.ff_name}}</option>
+					{{/each}}
 				</select>
 			<input type="submit" value="Submit"/>
 			<textarea name="sourceInput" style="width:100%;height:92%"></textarea><br>
 		</form>
 	</div>
-	Made by Stanislav Nikolov. Licensed under the GPL-2. <br>
 </body>
 </html>
