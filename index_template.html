@@ -6,21 +6,23 @@
 </head>
 <body>
 	<form action="" method="post">
-		<div id="nameAndSubmit">
-			Name:<input/ name="guysName">
-			<input type="submit" value="Submit"/>
+		<div id="leftSide">
+			<ul id="taskList">
+				{{#each tasks}}
+				<li>
+					<input name="task" type="radio" value="{{this.internal_name}}" id="t{{@index}}">
+					<label for="t{{@index}}">{{this.ff_name}}</label>
+				</li>
+				{{/each}}
+			</ul>
 		</div>
-		<div id="taskListWrapper">
-		<ul id="taskList">
-			{{#each tasks}}
-			<li>
-				<input name="task" type="radio" value="{{this.internal_name}}" id="t{{@index}}">
-				<label for="t{{@index}}">{{this.ff_name}}</label>
-			</li>
-			{{/each}}
-		</ul>
+		<div id="rightSide">
+			<div id="nameAndSubmit">
+				<input alt="Enter username" placeholder="username" type="text" name="guysName">
+				<input type="submit" value="Submit"/>
+			</div>
+			<textarea name="sourceInput"></textarea>
 		</div>
-		<textarea name="sourceInput"></textarea>
 	</form>
 </body>
 </html>

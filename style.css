@@ -12,11 +12,14 @@ html {
  * Only /
  */
 
-#taskListWrapper {
+#leftSide {
 	position: fixed;
-	left: 1%;
+	top: 0;
+	left: 0%;
 	width: 26%;
+	height: 100%;
 	overflow: hidden;
+	margin: 0;
 }
 
 #taskList {
@@ -28,22 +31,34 @@ html {
 	height: 100%;
 }
 
-textarea {
+#rightSide {
 	position: fixed;
-	left: 27%;
-	width: 70%;
-}
-
-#taskListWrapper, textarea {
-	margin: 0;
-	height: 90%;
+	top: 0;
+	left: 26%;
+	width: 74%;
+	height: 100%;
+	display: flex;
+	flex-flow: column;
 }
 
 #nameAndSubmit {
 	width: 100%;
-	margin-bottom: 0.5em;
+	margin: 0.5em;
 }
 
+textarea {
+	width: 100%;
+	flex: 1 1 auto;
+}
+
+input[type="text"] {
+  padding: 0.2em;
+  border: solid 0.3em #c9c9c9;
+  transition: border 0.3s;
+}
+input[type="text"]:focus, input[type="text"].focus {
+  border: solid 0.3em #969696;
+}
 input[type=radio] {
 	display:none;
 }
