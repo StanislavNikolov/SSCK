@@ -25,6 +25,7 @@ function renderIndexPage()
 				var template = handlebars.compile(source);
 				indexPage = template(data);
 			});
+			fs.unlink(stdout);
 		});
 	});
 }
