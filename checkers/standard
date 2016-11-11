@@ -1,5 +1,6 @@
 #!/bin/env bash
 
+safeBin="LD_PRELOAD=./EasySandbox.so $1"
 task=$2
 
 declare -A timeLimit
@@ -77,8 +78,9 @@ do
 	str="$test"
 	if [[ ! $str =~ "00.in" ]]
 	then
-		if timeout ${timeLimit[$task]} sh -c "TIMEFORMAT=%3R; time ($1 < $test &> $tmpfile) &> $sstmp"
+		if timeout ${timeLimit[$task]} sh -c "TIMEFORMAT=%3R; time ($safeBin < $test &> $tmpfile) &> $sstmp"
 		then
+			sed -i 1,2d $tmpfile # EasySandbox garbage, rtfm
 			out=`basename -s .in $test`.sol
 			(diff -qb checkers/tests/$task/tests/$out $tmpfile > /dev/null && prn_ok $test) || fail_wrong $test
 		else

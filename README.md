@@ -1,13 +1,11 @@
 Simple Source Controller for Kiten
 =======
 
-**This project has severe security issues. Refrain from using it in 'real world' situations**
-
 # Introduction
 SSCK is a simple scoring system designed for small contests that need to be easy to set up. It's written in JavaScript (page rendering and user management) and bash (starting the tasks with different tests/limits). All you need is a POSIX-compatible OS (GNU, OS X) and nodejs.
 
 # Running it
-Clone the repo and go to the root directory of SSCK (the one this file is placed in). Install all the depencies (npm install) and run node main.js. Thats it!  
+Clone, npm install. Then build EasySandbox and put the generated object file (EasySandbox.so) in the root directory. The final step is to run node main.js and hope for the best. 
 Of course, there are no tasks, users and so on. The code is simple and clean enough, and I suck at writing tutorials so just look at the *checkers/* directory.
 Basic configuration is made possible by a small json config file called (surprisee) config.json. Look at template\_config.json for more info.  
 You can actually **write your own checkers in whatever language you want**. SSCK will call the requiered one with its arguments the binary to be tested and the task it's submitted on. Look at checkers/standard for a example.  

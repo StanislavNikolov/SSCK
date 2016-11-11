@@ -1,9 +1,10 @@
 *.swp
 submissions/*
 node_modules/*
-tags
+.tags
 results_tasks
 results_users
 checkers/settings/*
 checkers/tests/*
 config.json
+EasySandbox.so
