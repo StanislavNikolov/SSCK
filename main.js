@@ -58,8 +58,8 @@ app.get("/userfiles/*", function(req, res) {
 	res.sendFile(__dirname + req.url);
 });
 
-app.get("/auth/*", function(req, res) {
-	var token = req.url.substr(6, req.url.length-6);
+app.post("/tokenStatus", function(req, res) {
+	var token = req.body.token;
 
 	if(token != null)
 	{
@@ -228,7 +228,7 @@ function addNewResult(name, task, strres)
 }
 
 app.post("/", function(req, res) {
-	var username = req.body.guysName;
+	var username = req.body.token;
 
 	if(config.users.only_allowed)
 	{

@@ -7,8 +7,9 @@ if(token == null)
 else
 {
 	var request = new XMLHttpRequest();
-	request.open("GET", "auth/" + token, true); // check if the token is still valid
-	request.send(null);
+	request.open("POST", "tokenStatus/", true); // check if the token is still valid
+	request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	request.send("token=" + token);
 	request.onreadystatechange = function()
 	{
 		if(request.readyState == 4)
