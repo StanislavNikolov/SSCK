@@ -5,24 +5,24 @@
 	<link href="userfiles/style.css" rel="stylesheet">
 </head>
 <body>
-	<form action="" method="post">
-		<div id="leftSide">
-			<ul id="taskList">
-				{{#each tasks}}
-				<li>
-					<input name="task" type="radio" value="{{this.internal_name}}" id="t{{@index}}">
-					<label for="t{{@index}}">{{this.ff_name}}</label>
-				</li>
-				{{/each}}
-			</ul>
+	<div id="leftSide">
+		<ul id="taskList" onclick="anyUpdate=true; updateSubmitsPage()">
+			{{#each tasks}}
+			<li>
+				<input name="task" type="radio" value="{{this.internal_name}}" id="t{{@index}}">
+				<label for="t{{@index}}">{{this.ff_name}}</label>
+			</li>
+			{{/each}}
+		</ul>
+	</div>
+	<div id="rightSide">
+		<textarea id="codeInput"></textarea>
+		<div id="buttonPanel">
+			<input type="button" onclick="sendCode()" value="Send"/>
 		</div>
-		<div id="rightSide">
-			<textarea name="sourceInput"></textarea>
-			<div id="nameAndSubmit">
-				<input type="submit" value="Submit"/>
-			</div>
-		</div>
-		<script src="userfiles/realc.js"></script>
-	</form>
+		<div id="submissionsList"></div>
+		<div id="submissionPreview"></div>
+	</div>
+	<script src="userfiles/realc.js"></script>
 </body>
 </html>

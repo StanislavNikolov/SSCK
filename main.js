@@ -57,20 +57,62 @@ app.get("/login", function(req, res) {
 app.get("/userfiles/*", function(req, res) {
 	res.sendFile(__dirname + req.url);
 });
+app.post("/getlog", function(req, res) {
+	var user = getUserFromToken(req.body.token);
+	if(user != -1)
+	{
+		res.sendFile(__dirname + "/submissions"
+				 + "/" + users[user].name
+				 + "/" + req.body.task
+				 + "/" + req.body.id
+				 + ".log");
+	}
+	else
+	{
+		res.send("x");
+	}
+});
+app.post("/getsubmlist", function(req, res) {
+	var user = getUserFromToken(req.body.token);
+	if(user != -1)
+	{
+		var subl = users[user].submissions[req.body.task];
+		if(subl == null)
+		{
+			res.send("x");
+			return;
+		}
+
+		var out = [];
+		var begin = Math.max(0, subl.length - 10);
+		for(var i = begin;i < subl.length;i ++)
+		{
+			out.push(subl[i]);
+		}
+		res.send(encodeURIComponent(JSON.stringify(out)));
+	}
+});
+
+function getUserFromToken(token)
+{
+	for(var i in users)
+	{
+		if(users[i].token == token)
+		{
+			//res.send("o");
+			return i;
+		}
+	}
+	return -1;
+}
 
 app.post("/tokenStatus", function(req, res) {
 	var token = req.body.token;
 
-	if(token != null)
+	if(getUserFromToken(token) != -1)
 	{
-		for(var i in users)
-		{
-			if(users[i].token == token)
-			{
-				res.send("o");
-				return;
-			}
-		}
+		res.send("o");
+		return;
 	}
 	res.send("x");
 });
@@ -103,11 +145,12 @@ app.post("/login", function(req, res) {
 	if(status == -2)
 	{
 		var nu = {
-			name:     req.body.username,
-			password: req.body.password,
-			token:    newToken,
-			results:  {},
-			total:    0
+			name:        req.body.username,
+			password:    req.body.password,
+			token:       newToken,
+			results:     {},
+			total:       0,
+			submissions: {}
 		};
 		users.push(nu);
 		console.log("Created new account", req.body.username, req.body.password, newToken);
@@ -217,7 +260,6 @@ function addNewResult(name, task, strres)
 				for(var j in users[i].results)
 					users[i].total += users[i].results[j];
 				users.sort(function(u1, u2) { return u1.total < u2.total; } );
-				saveResults();
 				renderResultsPage();
 			}
 			return;
@@ -228,44 +270,15 @@ function addNewResult(name, task, strres)
 }
 
 app.post("/", function(req, res) {
-	var username = req.body.token;
+	var user = getUserFromToken(req.body.token);
 
-	if(config.users.only_allowed)
+	if(user == -1) // invalid token, shouldn't happen
 	{
-		var isAllowed = false;
-		for(var i in config.users.allowed_user_list)
-		{
-			if(username == config.users.allowed_user_list[i])
-			{
-				isAllowed = true;
-				break;
-			}
-		}
-		if(!isAllowed)
-		{
-			res.send("Username not whitelisted!<br>");
-			return;
-		}
-	}
-
-	if(username == undefined || username == "")
-	{
-		res.send("No username supplied!<br>");
+		res.send("x");
 		return;
 	}
 
-	// Remove illegal characters from the username
-	for(var idx in req.body.guysName)
-	{
-		var chr = req.body.guysName[idx];
-		if(!(chr >= 'a' && chr <= 'z') && !(chr >= 'A' && chr <= 'Z') && !(chr >= '0' && chr <= '9'))
-		{
-			res.send("Illegal character used!<br> This username looks better anyways: " + username.replace(/[^0-9a-zA-Z]/g, '_'));
-			return;
-		}
-	}
-
-	var dir = __dirname + "/submissions/" + username;
+	var dir = __dirname + "/submissions/" + users[user].name;
 
 	if(fs.existsSync(__dirname + "/submissions") == false)
 		fs.mkdirSync(__dirname + "/submissions");
@@ -277,16 +290,27 @@ app.post("/", function(req, res) {
 	if(fs.existsSync(dir) == false)
 		fs.mkdirSync(dir);
 
-	var commitId = randStr();
-	var completeFileName = dir + "/" + commitId + ".cpp"; // TODO generate more logical name (date, hash)
-	fs.writeFile(completeFileName, req.body.sourceInput, function(err) {});
+	var submId = randStr();
+	var completeFileName = dir + "/" + submId; // TODO generate more logical name (date, hash)
 
-	console.log("[INFO]", new Date(), "Submission accepted by", username, "on task", req.body.task, "with id", commitId);
+	var code = decodeURIComponent(req.body.code);
+	fs.writeFile(completeFileName + ".cpp", code, function(err) {});
+
+	console.log("[INFO]", new Date(), "Submission accepted by", users[user].name, "on task", req.body.task, "with id", submId);
 
 	var checker = "standard";
 	if(config.checkers[req.body.task] !== undefined && config.checkers[req.body.task] !== "")
 		checker = config.checkers[req.body.task];
-	var command = __dirname + "/compile.sh " + completeFileName + " " + req.body.task + " " + checker;
+	var command = __dirname + "/compile.sh " + completeFileName + ".cpp " + req.body.task + " " + checker;
+
+	var subl = users[user].submissions[req.body.task];
+	if(subl == null)
+	{
+		users[user].submissions[req.body.task] = [];
+		subl = users[user].submissions[req.body.task];
+	}
+	var sublIndex = subl.push({id: submId, result: -1}) - 1;
+	res.send(submId);
 
 	cp(command, function(err, stdout, stderr) {
 		var output = "";
@@ -298,12 +322,17 @@ app.post("/", function(req, res) {
 			{
 				i ++;
 				result = lines[i];
-				addNewResult(username, req.body.task, lines[i]);
+				addNewResult(users[user].name, req.body.task, lines[i]);
 			}
 			else
-				output += lines[i] + "<br>";
+			{
+				output += lines[i] + "<br>\n";
+			}
 		}
-		console.log("[INFO]", new Date(), "Submission with id", commitId, "got score", result);
-		res.send(output);
+
+		console.log("[INFO]", new Date(), "Submission with id", submId, "got score", result);
+		fs.writeFile(completeFileName + ".log", output, function(err) {});
+		subl[sublIndex].result = result;
+		saveResults();
 	});
 });

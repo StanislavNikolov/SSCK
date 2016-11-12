@@ -1,5 +1,5 @@
 /*
- * Both /main and /results
+ * Both / and /results
  */
 
 html {
@@ -9,7 +9,7 @@ html {
 
 
 /*
- * Only /main
+ * Only /
  */
 
 #leftSide {
@@ -41,7 +41,16 @@ html {
 	flex-flow: column;
 }
 
-#nameAndSubmit {
+.submission {
+	width: 100%;
+	margin-bottom: 1%;
+}
+.testing { background-color: blue; }
+.wrong { background-color: red; }
+.ok { background-color: green; }
+.partial { background-color: yellow; }
+
+#buttonPanel {
 	width: 100%;
 	margin: 0.5em;
 }
