@@ -11,7 +11,7 @@ else
 	var request = new XMLHttpRequest();
 	request.open("POST", "tokenStatus/", true); // check if the token is still valid
 	request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-	request.send("token=" + token);
+	request.send("token=" + encodeURIComponent(token));
 	request.onreadystatechange = function()
 	{
 		if(request.readyState == 4)
@@ -57,7 +57,9 @@ function sendCode()
 	var request = new XMLHttpRequest();
 	request.open("POST", "/", true);
 	request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-	request.send("token=" + token + "&task=" + task + "&code=" + encodeURIComponent(code));
+	request.send("token=" + encodeURIComponent(token)
+			  + "&task=" + encodeURIComponent(task)
+			  + "&code=" + encodeURIComponent(code));
 
 	request.onreadystatechange = function()
 	{
@@ -77,7 +79,8 @@ function getSubmitsList()
 	var request = new XMLHttpRequest();
 	request.open("POST", "/getsubmlist", true);
 	request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-	request.send("token=" + token + "&task=" + task);
+	request.send("token=" + encodeURIComponent(token)
+			  + "&task=" + encodeURIComponent(task));
 
 	request.onreadystatechange = function()
 	{
@@ -131,7 +134,9 @@ function view(task, id)
 	var request = new XMLHttpRequest();
 	request.open("POST", "/getlog", true);
 	request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-	request.send("token=" + token + "&task=" + task + "&id=" + id);
+	request.send("token=" + encodeURIComponent(token)
+			  + "&task=" + encodeURIComponent(task)
+			  + "&id=" + encodeURIComponent(id));
 
 	request.onreadystatechange = function()
 	{

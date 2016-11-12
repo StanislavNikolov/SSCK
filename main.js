@@ -58,13 +58,13 @@ app.get("/userfiles/*", function(req, res) {
 	res.sendFile(__dirname + req.url);
 });
 app.post("/getlog", function(req, res) {
-	var user = getUserFromToken(req.body.token);
+	var user = getUserFromToken(decodeURIComponent(req.body.token));
 	if(user != -1)
 	{
 		res.sendFile(__dirname + "/submissions"
 				 + "/" + users[user].name
-				 + "/" + req.body.task
-				 + "/" + req.body.id
+				 + "/" + decodeURIComponent(req.body.task)
+				 + "/" + decodeURIComponent(req.body.id)
 				 + ".log");
 	}
 	else
@@ -73,10 +73,11 @@ app.post("/getlog", function(req, res) {
 	}
 });
 app.post("/getsubmlist", function(req, res) {
-	var user = getUserFromToken(req.body.token);
+	var user = getUserFromToken(decodeURIComponent(req.body.token));
+	var task = decodeURIComponent(req.body.task);
 	if(user != -1)
 	{
-		var subl = users[user].submissions[req.body.task];
+		var subl = users[user].submissions[task];
 		if(subl == null)
 		{
 			res.send("x");
@@ -107,7 +108,7 @@ function getUserFromToken(token)
 }
 
 app.post("/tokenStatus", function(req, res) {
-	var token = req.body.token;
+	var token = decodeURIComponent(req.body.token);
 
 	if(getUserFromToken(token) != -1)
 	{
@@ -119,14 +120,16 @@ app.post("/tokenStatus", function(req, res) {
 
 app.post("/login", function(req, res) {
 	if(req.body.username == null || req.body.password == null) res.send("x");
+	var username = decodeURIComponent(req.body.username);
+	var password = decodeURIComponent(req.body.password);
 
 	var status = -2; // -2 no such user, -1 invalid password , >=0 the index of the correct user
 	for(var i in users)
 	{
-		if(users[i].name == req.body.username)
+		if(users[i].name == username)
 		{
 			status = -1;
-			if(users[i].password == req.body.password)
+			if(users[i].password == password)
 			{
 				status = i
 				break;
@@ -140,7 +143,7 @@ app.post("/login", function(req, res) {
 		return;
 	}
 
-	var newToken = randStr() + randStr() + randStr(); // don't we all love javascript
+	var newToken = randStr() + randStr();
 
 	if(status == -2)
 	{
@@ -182,7 +185,7 @@ var server = app.listen(port, function() {
 
 function randStr()
 {
-	return Math.random().toString(36).substr(2, 5);
+	return Math.random().toString(36).substr(2, 16);
 }
 
 function saveResults()
@@ -256,7 +259,7 @@ function addNewResult(name, task, result)
 }
 
 app.post("/", function(req, res) {
-	var user = getUserFromToken(req.body.token);
+	var user = getUserFromToken(decodeURIComponent(req.body.token));
 
 	if(user == -1) // invalid token, shouldn't happen
 	{
@@ -264,38 +267,44 @@ app.post("/", function(req, res) {
 		return;
 	}
 
-	var dir = __dirname + "/submissions/" + users[user].name;
+	var task = decodeURIComponent(req.body.task);
+	var code = decodeURIComponent(req.body.code);
 
 	if(fs.existsSync(__dirname + "/submissions") == false)
 		fs.mkdirSync(__dirname + "/submissions");
 
+	var dir = __dirname + "/submissions/" + users[user].name;
 	if(fs.existsSync(dir) == false)
 		fs.mkdirSync(dir);
 
-	dir += "/" + req.body.task;
+	dir += "/" + task;
 	if(fs.existsSync(dir) == false)
 		fs.mkdirSync(dir);
 
 	var submId = randStr();
 	var completeFileName = dir + "/" + submId; // TODO generate more logical name (date, hash)
 
-	var code = decodeURIComponent(req.body.code);
 	fs.writeFile(completeFileName + ".cpp", code, function(err) {});
 
-	console.log("[INFO]", new Date(), "Submission accepted by", users[user].name, "on task", req.body.task, "with id", submId);
+	console.log("[INFO]", new Date(),
+			"Submission accepted by", users[user].name,
+			"on task", task,
+			"with id", submId);
 
 	var checker = "standard";
-	if(config.checkers[req.body.task] !== undefined && config.checkers[req.body.task] !== "")
-		checker = config.checkers[req.body.task];
-	var command = __dirname + "/compile.sh " + completeFileName + ".cpp " + req.body.task + " " + checker;
+	if(config.checkers[task] != null && config.checkers[task] !== "")
+		checker = config.checkers[task];
 
-	var subl = users[user].submissions[req.body.task];
+	var command = __dirname + "/compile.sh " + completeFileName + ".cpp " + task + " " + checker;
+
+	var subl = users[user].submissions[task];
 	if(subl == null)
 	{
-		users[user].submissions[req.body.task] = [];
-		subl = users[user].submissions[req.body.task];
+		users[user].submissions[task] = [];
+		subl = users[user].submissions[task];
 	}
 	var sublIndex = subl.push({id: submId, result: -1}) - 1;
+
 	res.send(submId);
 
 	cp(command, function(err, stdout, stderr) {
@@ -322,9 +331,14 @@ app.post("/", function(req, res) {
 			}
 		}
 
-		console.log("[INFO]", new Date(), "Submission with id", submId, "got score", result);
+		console.log("[INFO]", new Date(),
+				"Submission with id", submId,
+				"got score", result);
+
 		fs.writeFile(completeFileName + ".log", output, function(err) {});
+
 		subl[sublIndex].result = result;
+
 		saveResults();
 	});
 });

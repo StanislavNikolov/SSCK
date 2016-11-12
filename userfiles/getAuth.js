@@ -7,14 +7,15 @@ function submit()
 	var request = new XMLHttpRequest();
 	request.open("POST", "login/", true);
 	request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-	request.send("username=" + u.value + "&password=" + p.value);
+	request.send("username=" + encodeURIComponent(u.value)
+			  + "&password=" + encodeURIComponent(p.value));
 
 	request.onreadystatechange = function()
 	{
 		if(request.readyState == 4)
 		{
-			console.log(request.responseText);
-			if(request.responseText == 'x') // something went wrong
+			var response = decodeURIComponent(request.responseText);
+			if(response == 'x') // something went wrong
 			{
 				console.log("Failed to login"); // TODO
 				u.value = "";
@@ -22,7 +23,7 @@ function submit()
 			}
 			else
 			{
-				localStorage.setItem("authToken", request.responseText);
+				localStorage.setItem("authToken", response);
 				window.location = window.location.origin;
 			}
 		}
