@@ -7,13 +7,13 @@
 <body>
 	<div id="loginBox_outer">
 		<div id="loginBox_inner">
-			<label for="usernameInput">username: </label>
-			<input name="username" type="text" id="usernameInput">
+			<h1> Login: </h1>
+			<input name="username" placeholder="username" type="text" id="usernameInput">
 			<br><br>
-			<label for="passwordInput">password: </label>
-			<input name="password" type="password" id="passwordInput">
+			<input name="password" placeholder="password" type="password" id="passwordInput">
 			<br><br>
-			<input type="button" onclick="submit()" value="Submit"/>
+			<input type="button" onclick="submit()" id="loginSubmit" value="Submit"/>
+			<br><br>
 		</div>
 	</div>
 	<script src="userfiles/getAuth.js"></script>

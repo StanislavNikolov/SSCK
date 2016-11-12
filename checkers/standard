@@ -93,7 +93,7 @@ done;
 
 currGroup=$((currGroup-1))
 output=`python -c "print(round(100 / $currGroup * $correctGroups))"`
-printf "<h2> Result: %d - %d/%d <h2>\n" $output $correctGroups $currGroup
+printf "<b>Result: %d - %d/%d</b>\n" $output $correctGroups $currGroup
 
 # The line after __SSCK_RES_PACK__ is the actual score showed on the results
 echo "__SSCK_RES_PACK__"

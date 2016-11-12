@@ -118,8 +118,9 @@ function updateSubmitsPage()
 		div.className = "submission " + status;
 
 		var call = "view(\"" + task + "\",\"" + submissions[task][i].id + "\")";
-		div.innerHTML = "<b>" + submissions[task][i].result + "</b>"
-			+ "<a href=\"#\" onclick=" + call + ">view log</a>";
+		div.innerHTML = "<a href=\"#\" onclick=" + call + ">[view log]</a>"
+		+ "&nbsp;&nbsp;&nbsp;&nbsp;"
+		+ "<b>" + submissions[task][i].result + "</b>";
 
 		sl.appendChild(div);
 	}

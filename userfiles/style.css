@@ -1,11 +1,16 @@
 /*
- * Both / and /results
+ * All
  */
 
 html {
-	background-color: #ddd;
+	/*background-color: #ddd;*/
+	color: #404040;
+	background: #0ca3d2;
 }
-
+hr {
+	width: 100%;
+	color: white;
+}
 
 
 /*
@@ -43,12 +48,12 @@ html {
 
 .submission {
 	width: 100%;
-	margin-bottom: 1%;
+	margin: 1%;
 }
-.testing { background-color: blue; }
-.wrong { background-color: red; }
-.ok { background-color: green; }
-.partial { background-color: yellow; }
+.testing { background-color: #0b7da0; }
+.wrong { background-color: #0ca3d2; }
+.ok { background-color: #7cb50c; }
+.partial { background-color: #afdb57; }
 
 #buttonPanel {
 	width: 100%;
@@ -56,18 +61,12 @@ html {
 }
 
 textarea {
+	background: #5ad0f4;
 	width: 100%;
 	flex: 1 1 auto;
+	margin: 1%;
 }
 
-input[type="text"] {
-  padding: 0.2em;
-  border: solid 0.3em #c9c9c9;
-  transition: border 0.3s;
-}
-input[type="text"]:focus, input[type="text"].focus {
-  border: solid 0.3em #969696;
-}
 input[type=radio] {
 	display:none;
 }
@@ -82,13 +81,17 @@ input[type=radio] + label {
 	width: 100%;
     padding: 0.7em 1em;
 	margin: 0.1em;
-    background-color: #e7e7e7;
+    /*background-color: #e7e7e7;*/
+	background-color: #64cfef;
 }
 input[type=radio]:checked + label {
-	background-color: #70cc37;
+	/*background-color: #70cc37;*/
+	background-color: #115b72;
+	color: white;
 }
 input + label:hover {
-	background-color: #c5c5c5;
+	/*background-color: #c5c5c5;*/
+	background-color: #1fa9d3;
 }
 
 
@@ -133,11 +136,19 @@ table tr:nth-child(2n+1) {
 	height: 100%;
 	margin: 0;
 	padding: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 #loginBox_inner {
 	width: 50%;
-	margin: 0 auto;
+	border-radius: 4px;
+	background-color: #64cfef;
 }
-#passwordInput, #usernameInput {
-	width: 100%;
+#loginBox_inner h1 {
+	text-align: center;
+}
+#passwordInput, #usernameInput, #loginSubmit {
+	width: 80%;
+	margin: 0 10%;
 }
