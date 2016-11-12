@@ -23,7 +23,6 @@ function submit()
 			else
 			{
 				localStorage.setItem("authToken", request.responseText);
-				console.log(window.location.origin);
 				window.location = window.location.origin;
 			}
 		}

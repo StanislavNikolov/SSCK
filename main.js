@@ -58,15 +58,14 @@ app.get("/userfiles/*", function(req, res) {
 	res.sendFile(__dirname + req.url);
 });
 
-var accounts = {};
 app.get("/auth/*", function(req, res) {
 	var token = req.url.substr(6, req.url.length-6);
 
 	if(token != null)
 	{
-		for(var name in accounts)
+		for(var i in users)
 		{
-			if(accounts[name].token == token)
+			if(users[i].token == token)
 			{
 				res.send("o");
 				return;
@@ -78,20 +77,49 @@ app.get("/auth/*", function(req, res) {
 
 app.post("/login", function(req, res) {
 	if(req.body.username == null || req.body.password == null) res.send("x");
-	if(accounts[req.body.username] != null)
+
+	var status = -2; // -2 no such user, -1 invalid password , >=0 the index of the correct user
+	for(var i in users)
 	{
-		if(accounts[req.body.username].password != req.body.password)
+		if(users[i].name == req.body.username)
 		{
-			res.send("x");
-			return;
+			status = -1;
+			if(users[i].password == req.body.password)
+			{
+				status = i
+				break;
+			}
 		}
 	}
 
+	if(status == -1)
+	{
+		res.send('x');
+		return;
+	}
+
 	var newToken = randStr() + randStr() + randStr(); // don't we all love javascript
-	accounts[req.body.username] = {password: req.body.password, token: newToken};
+
+	if(status == -2)
+	{
+		var nu = {
+			name:     req.body.username,
+			password: req.body.password,
+			token:    newToken,
+			results:  {},
+			total:    0
+		};
+		users.push(nu);
+		console.log("Created new account", req.body.username, req.body.password, newToken);
+	}
+	else
+	{
+		users[status].token = newToken;
+	}
+
+	console.log("Returning", newToken);
 	res.send(newToken);
 
-	console.log("Created new account", req.body.username, req.body.password, newToken);
 });
 
 readResults();
@@ -182,7 +210,7 @@ function addNewResult(name, task, strres)
 	{
 		if(name == users[i].name)
 		{
-			if(users[i].results[task] == undefined || result > users[i].results[task])
+			if(users[i].results[task] == null || result > users[i].results[task])
 			{
 				users[i].results[task] = result;
 				users[i].total = 0;
@@ -190,17 +218,13 @@ function addNewResult(name, task, strres)
 					users[i].total += users[i].results[j];
 				users.sort(function(u1, u2) { return u1.total < u2.total; } );
 				saveResults();
+				renderResultsPage();
 			}
 			return;
 		}
 	}
 
-	var nu = {name:name, results:{}, total: result};
-	nu.results[task] = result;
-	users.push(nu);
-
-	saveResults();
-	renderResultsPage();
+	console.log("[ERROR] Somehow unregistered user submited something");
 }
 
 app.post("/", function(req, res) {
