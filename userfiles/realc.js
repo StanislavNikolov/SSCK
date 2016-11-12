@@ -1,6 +1,7 @@
 var token = localStorage.getItem("authToken");
 var validToken = true, anyUpdate = false;
 var submissions = {};
+var currentlyViewed = "";
 
 if(token == null)
 {
@@ -121,7 +122,7 @@ function updateSubmitsPage()
 		div.className = "submission " + status;
 
 		var call = "view(\"" + task + "\",\"" + submissions[task][i].id + "\")";
-		div.innerHTML = "<a href=\"#\" onclick=" + call + ">[view log]</a>"
+		div.innerHTML = "<input type=\"button\" onclick=" + call + " value=\"open\">"
 		+ "&nbsp;&nbsp;&nbsp;&nbsp;"
 		+ "<b>" + submissions[task][i].result + "</b>";
 
@@ -131,6 +132,24 @@ function updateSubmitsPage()
 
 function view(task, id)
 {
+	var panel = document.getElementById("submissionPreview");
+
+	if(currentlyViewed == id) // close the log box
+	{
+		currentlyViewed = "";
+		panel.innerHTML = "";
+		document.getElementById("subm_" + id).children[0].value = "open";
+		return;
+	}
+
+	try
+	{
+		document.getElementById("subm_" + id).children[0].value = "close";
+		document.getElementById("subm_" + currentlyViewed).children[0].value = "open";
+	}
+	catch(err) { }
+	currentlyViewed = id;
+
 	var request = new XMLHttpRequest();
 	request.open("POST", "/getlog", true);
 	request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -143,11 +162,10 @@ function view(task, id)
 		if(request.readyState == 4)
 		{
 			var res = decodeURIComponent(request.responseText);
-			//if(res == 'x') return;
-			var div = document.getElementById("submissionPreview");
-			div.innerHTML = res;
+			panel.innerHTML = res;
+			//div.children[0].value = "close";
 		}
 	};
 }
 
-setInterval(updateSubmitsPage, 500);
+setInterval(updateSubmitsPage, 1000);

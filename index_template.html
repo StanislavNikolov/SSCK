@@ -16,14 +16,17 @@
 		</ul>
 	</div>
 	<div id="rightSide">
-		<textarea id="codeInput"></textarea>
-		<div id="buttonPanel">
-			<input type="button" onclick="sendCode()" value="Submit"/>
+		<div id="scrlWrapper">
+			<textarea id="codeInput"></textarea>
+			<div id="buttonPanel">
+				<input type="button" onclick="sendCode()" value="Submit"/>
+			</div>
+			<hr>
+			<div id="submSplit">
+				<div id="submissionsList"></div>
+				<div id="submissionPreview"></div>
+			</div>
 		</div>
-		<hr>
-		<div id="submissionsList"></div>
-		<hr>
-		<div id="submissionPreview"></div>
 	</div>
 	<script src="userfiles/realc.js"></script>
 </body>
