@@ -217,22 +217,8 @@ function readResults()
 			});
 }
 
-function addNewResult(name, task, strres)
+function addNewResult(name, task, result)
 {
-	// Parse the string to int
-	var result = 0;
-	for(var i = 0;i < strres.length;++ i)
-	{
-		if(strres[i] < '0' || strres[i] > '9')
-		{
-			console.log("[ERROR] Invalid result for task", task, "by", name, ": ", strres);
-			console.log("There is probably an error in the checker for that task.");
-			return;
-		}
-		result *= 10;
-		result += (strres[i]-'0');
-	}
-
 	var inTasks = false;
 	for(var i in tasks)
 	{
@@ -316,13 +302,19 @@ app.post("/", function(req, res) {
 		var output = "";
 		var lines = stdout.split("\n");
 		var result = 0;
-		for(var i = 0;i < lines.length;++ i)
+		for(var i = 0;i < lines.length;i ++)
 		{
 			if(lines[i] == "__SSCK_RES_PACK__") // TODO documentation
 			{
 				i ++;
-				result = lines[i];
-				addNewResult(users[user].name, req.body.task, lines[i]);
+				result = Number(lines[i]);
+				if(result == NaN)
+				{
+					console.log("[ERROR] Invalid result for task", task, "by", name, ": ", strres);
+					console.log("There is probably an error in the checker for that task.");
+					result = 0;
+				}
+				addNewResult(users[user].name, req.body.task, result);
 			}
 			else
 			{
