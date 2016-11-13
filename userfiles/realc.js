@@ -2,6 +2,7 @@ var token = localStorage.getItem("authToken");
 var validToken = true, anyUpdate = false;
 var submissions = {};
 var currentlyViewed = "";
+var logs = {};
 
 if(token == null)
 {
@@ -103,7 +104,7 @@ function updateSubmitsPage()
 	if(!anyUpdate) return;
 	anyUpdate = false;
 
-	document.getElementById("submissionPreview").innerHTML = "";
+	//document.getElementById("submissionPreview").innerHTML = "";
 
 	var task = getSelectedTask();
 	var sl = document.getElementById("submissionsList");
@@ -150,22 +151,46 @@ function view(task, id)
 	catch(err) { }
 	currentlyViewed = id;
 
+	if(logs[id] == null) logs[id] = "unavailable";
+	panel.innerHTML = "<pre>" + logs[id]; + "</pre>";
+}
+
+function refreshView(id)
+{
+	var panel = document.getElementById("submissionPreview");
+	if(logs[id] == null) logs[id] = "unavailable";
+	panel.innerHTML = "<pre>" + logs[id]; + "</pre>";
+}
+
+function getLog(task, id, callback)
+{
 	var request = new XMLHttpRequest();
 	request.open("POST", "/getlog", true);
 	request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	request.send("token=" + encodeURIComponent(token)
-			  + "&task=" + encodeURIComponent(task)
-			  + "&id=" + encodeURIComponent(id));
+			+ "&task=" + encodeURIComponent(task)
+			+ "&id=" + encodeURIComponent(id));
 
 	request.onreadystatechange = function()
 	{
 		if(request.readyState == 4)
 		{
-			var res = decodeURIComponent(request.responseText);
-			panel.innerHTML = res;
-			//div.children[0].value = "close";
+			logs[id] = decodeURIComponent(request.responseText);
+			callback();
 		}
 	};
 }
 
-setInterval(updateSubmitsPage, 1000);
+function updateSubmitPreview()
+{
+	if(currentlyViewed != "")
+	{
+		getLog(getSelectedTask(), currentlyViewed, function()
+				{
+					refreshView(currentlyViewed);
+				});
+	}
+}
+
+setInterval(updateSubmitsPage, 600);
+setInterval(updateSubmitPreview, 1000);

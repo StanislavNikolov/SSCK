@@ -298,7 +298,9 @@ app.post("/", function(req, res) {
 	if(config.checkers[task] != null && config.checkers[task] !== "")
 		checker = config.checkers[task];
 
-	var command = __dirname + "/compile.sh " + completeFileName + ".cpp " + task + " " + checker;
+	var command = __dirname + "/compile.sh "
+		+ completeFileName + ".cpp " + task + " " + checker
+		+ " | tee " + completeFileName + ".log";
 
 	var subl = users[user].submissions[task];
 	if(subl == null)
@@ -338,7 +340,7 @@ app.post("/", function(req, res) {
 				"Submission with id", submId,
 				"got score", result);
 
-		fs.writeFile(completeFileName + ".log", output, function(err) {});
+		//fs.writeFile(completeFileName + ".log", output, function(err) {});
 
 		subl[sublIndex].result = result;
 
