@@ -1,5 +1,5 @@
 var token = localStorage.getItem("authToken");
-var validToken = true, anyUpdate = false;
+var validToken = true;
 var submissions = {};
 var currentlyViewed = "";
 var logs = {};
@@ -56,6 +56,9 @@ function sendCode()
 
 	var task = getSelectedTask();
 
+	if(submissions[task] == null) submissions[task] = [];
+	submissions[task].push({id: 'automatic', result: -1});
+
 	var request = new XMLHttpRequest();
 	request.open("POST", "/", true);
 	request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -72,11 +75,9 @@ function sendCode()
 	};
 }
 
-function getSubmitsList()
+function getSubmitsList(task, callback)
 {
 	if(!validToken) return;
-
-	var task = getSelectedTask();
 
 	var request = new XMLHttpRequest();
 	request.open("POST", "/getsubmlist", true);
@@ -88,11 +89,11 @@ function getSubmitsList()
 	{
 		if(request.readyState == 4)
 		{
-			var res = decodeURIComponent(request.responseText);
+			var res = request.responseText; // note: not uri encoded!
 			if(res == 'x') return;
 			if(res != JSON.stringify(submissions[task])) {
 				submissions[task] = JSON.parse(res);
-				anyUpdate = true;
+				callback();
 			}
 		}
 	};
@@ -100,12 +101,6 @@ function getSubmitsList()
 
 function updateSubmitsPage()
 {
-	getSubmitsList();
-	if(!anyUpdate) return;
-	anyUpdate = false;
-
-	//document.getElementById("submissionPreview").innerHTML = "";
-
 	var task = getSelectedTask();
 	var sl = document.getElementById("submissionsList");
 
@@ -192,5 +187,5 @@ function updateSubmitPreview()
 	}
 }
 
-setInterval(updateSubmitsPage, 600);
+setInterval(function() { getSubmitsList(getSelectedTask(), updateSubmitsPage); }, 600);
 setInterval(updateSubmitPreview, 1000);

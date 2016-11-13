@@ -93,7 +93,7 @@ app.post("/getsubmlist", function(req, res) {
 		{
 			out.push(subl[i]);
 		}
-		res.send(encodeURIComponent(JSON.stringify(out)));
+		res.send(JSON.stringify(out));
 	}
 });
 
@@ -146,7 +146,7 @@ app.post("/login", function(req, res) {
 		return;
 	}
 
-	var newToken = randStr() + randStr();
+	var newToken = randStr(32);
 
 	if(status == -2)
 	{
@@ -186,9 +186,18 @@ var server = app.listen(port, function() {
 	console.log("Starting server on http://%s:%s", host, port);
 });
 
-function randStr()
+function randStr(len)
 {
-	return Math.random().toString(36).substr(2, 16);
+	var out = "";
+	while(len - 16 > 0) {
+		out += Math.random().toString(36).substr(2, 16);
+		len -= 16;
+	}
+	while(len > 0) {
+		out += Math.random().toString(36).substr(2, 1);
+		len -= 1;
+	}
+	return out;
 }
 
 function saveResults()
@@ -284,7 +293,7 @@ app.post("/", function(req, res) {
 	if(fs.existsSync(dir) == false)
 		fs.mkdirSync(dir);
 
-	var submId = randStr();
+	var submId = randStr(8);
 	var completeFileName = dir + "/" + submId; // TODO generate more logical name (date, hash)
 
 	fs.writeFile(completeFileName + ".cpp", code, function(err) {});
