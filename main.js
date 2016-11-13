@@ -1,17 +1,20 @@
-var app = require("express")();
-var cp = require("child_process").exec;
-var config = require("./config.json");
+var app        = require("express")();
 var bodyParser = require("body-parser");
+var cp         = require("child_process").exec;
+var fs         = require("fs");
+var handlebars = require("handlebars");
+var toml       = require("toml");
+
+var config = toml.parse(fs.readFileSync("config.toml"));
+console.log(config);
+
+if(config == null) config = {};
+if(config.users == null) config.users = {};
+if(config.users.allow_self_registration == null) config.allow_self_registration = true;
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-if(config == undefined) { config = {}; }
-if(config.users == undefined) { config.users = {} };
-if(config.users.only_allowed == undefined) { config.users.only_allowed = false };
-if(config.users.allowed_user_list == undefined) { config.users.allowed_user_list = []; };
-
-var handlebars = require("handlebars");
-var fs = require("fs");
 var indexPage = "", resultsPage = "", loginPage = "";
 var users = [];
 var tasks = [];
