@@ -61,13 +61,13 @@ app.get("/userfiles/*", function(req, res) {
 	res.sendFile(__dirname + req.url);
 });
 app.post("/getlog", function(req, res) {
-	var user = getUserFromToken(decodeURIComponent(req.body.token));
+	var user = getUserFromToken(req.body.token);
 	if(user != -1)
 	{
 		res.sendFile(__dirname + "/submissions"
 				 + "/" + users[user].name
-				 + "/" + decodeURIComponent(req.body.task)
-				 + "/" + decodeURIComponent(req.body.id)
+				 + "/" + req.body.task
+				 + "/" + req.body.id
 				 + ".log");
 	}
 	else
@@ -76,8 +76,8 @@ app.post("/getlog", function(req, res) {
 	}
 });
 app.post("/getsubmlist", function(req, res) {
-	var user = getUserFromToken(decodeURIComponent(req.body.token));
-	var task = decodeURIComponent(req.body.task);
+	var user = getUserFromToken(req.body.token);
+	var task = req.body.task;
 	if(user != -1)
 	{
 		var subl = users[user].submissions[task];
@@ -111,7 +111,7 @@ function getUserFromToken(token)
 }
 
 app.post("/tokenStatus", function(req, res) {
-	var token = decodeURIComponent(req.body.token);
+	var token = req.body.token;
 
 	if(getUserFromToken(token) != -1)
 	{
@@ -123,8 +123,8 @@ app.post("/tokenStatus", function(req, res) {
 
 app.post("/login", function(req, res) {
 	if(req.body.username == null || req.body.password == null) res.send("x");
-	var username = decodeURIComponent(req.body.username);
-	var password = decodeURIComponent(req.body.password);
+	var username = req.body.username;
+	var password = req.body.password;
 
 	var status = -2; // -2 no such user, -1 invalid password , >=0 the index of the correct user
 	for(var i in users)
@@ -271,7 +271,7 @@ function addNewResult(name, task, result)
 }
 
 app.post("/", function(req, res) {
-	var user = getUserFromToken(decodeURIComponent(req.body.token));
+	var user = getUserFromToken(req.body.token);
 
 	if(user == -1) // invalid token, shouldn't happen
 	{
@@ -279,8 +279,8 @@ app.post("/", function(req, res) {
 		return;
 	}
 
-	var task = decodeURIComponent(req.body.task);
-	var code = decodeURIComponent(req.body.code);
+	var task = req.body.task;
+	var code = req.body.code;
 
 	if(fs.existsSync(__dirname + "/submissions") == false)
 		fs.mkdirSync(__dirname + "/submissions");
