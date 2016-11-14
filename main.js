@@ -62,13 +62,30 @@ app.get("/userfiles/*", function(req, res) {
 });
 app.post("/getlog", function(req, res) {
 	var user = getUserFromToken(req.body.token);
+	var valid = false;
+
 	if(user != -1)
 	{
+		var subl = users[user].submissions[req.body.task];
+		if(subl != null)
+		{
+			for(var i in subl)
+			{
+				if(subl[i].id == req.body.id)
+				{
+					valid = true;
+					break;
+				}
+			}
+		}
+	}
+	if(valid)
+	{
 		res.sendFile(__dirname + "/submissions"
-				 + "/" + users[user].name
-				 + "/" + req.body.task
-				 + "/" + req.body.id
-				 + ".log");
+				+ "/" + users[user].name
+				+ "/" + req.body.task
+				+ "/" + req.body.id
+				+ ".log");
 	}
 	else
 	{
@@ -101,11 +118,7 @@ function getUserFromToken(token)
 {
 	for(var i in users)
 	{
-		if(users[i].token == token)
-		{
-			//res.send("o");
-			return i;
-		}
+		if(users[i].token == token) return i;
 	}
 	return -1;
 }

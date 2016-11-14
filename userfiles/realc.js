@@ -1,8 +1,4 @@
 var token = localStorage.getItem("authToken");
-var validToken = true;
-var submissions = {};
-var currentlyViewed = "";
-var logs = {};
 
 if(token == null)
 {
@@ -24,16 +20,33 @@ else
 			}
 			else
 			{
-				validToken = true;
+				var taskList = document.getElementsByName("task");
+				fetchSubmitsList(taskList[0].value, updateSubmitsList);
+				for(var i = 1;i < taskList.length;i ++) // var i in doesnt work
+				{
+					fetchSubmitsList(taskList[i].value, function(){});
+				}
+
+				setInterval(function() { fetchSubmitsList(task, updateSubmitsList); }, 600);
+				setInterval(updateLogPreview, 1000);
 			}
 		}
 	};
 }
 
+var submissions = {};
+var logs = {};
+
+var currentlyViewed = {};
+var previewPanel = document.getElementById("submissionPreview");
+var currOnPreviewPanel;
+
+var task = getSelectedTask();
+updateSubmitsList();
+
 function getSelectedTask()
 {
 	var taskList = document.getElementsByName("task");
-	var task = "";
 	for(var i in taskList)
 	{
 		if(taskList[i].checked) // TODO will break if the layout changes
@@ -43,21 +56,18 @@ function getSelectedTask()
 	}
 	// just select the first one
 	taskList[0].checked = true;
-	return taskList[0].value;
+	task = taskList[0].value;
 }
 
 function sendCode()
 {
-	if(!validToken) return;
-
 	var inp = document.getElementById("codeInput");
 	var code = inp.value;
 	inp.value = "";
 
-	var task = getSelectedTask();
-
 	if(submissions[task] == null) submissions[task] = [];
 	submissions[task].push({id: 'automatic', result: -1});
+	submissions[task].splice(0, Math.max(0, submissions[task].length - 10));
 
 	var request = new XMLHttpRequest();
 	request.open("POST", "/", true);
@@ -70,15 +80,13 @@ function sendCode()
 	{
 		if(request.readyState == 4)
 		{
-			updateSubmitsPage();
+			updateSubmitsList();
 		}
 	};
 }
 
-function getSubmitsList(task, callback)
+function fetchSubmitsList(task, callback)
 {
-	if(!validToken) return;
-
 	var request = new XMLHttpRequest();
 	request.open("POST", "/getsubmlist", true);
 	request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -99,9 +107,15 @@ function getSubmitsList(task, callback)
 	};
 }
 
-function updateSubmitsPage()
+function handleTaskChange()
 {
-	var task = getSelectedTask();
+	task = getSelectedTask();
+	refreshView(currentlyViewed[task], false);
+	updateSubmitsList();
+}
+
+function updateSubmitsList()
+{
 	var sl = document.getElementById("submissionsList");
 
 	while(sl.firstChild) sl.removeChild(sl.firstChild);
@@ -117,8 +131,10 @@ function updateSubmitsPage()
 		else if(submissions[task][i].result == 100) status = "ok";
 		div.className = "submission " + status;
 
-		var call = "view(\"" + task + "\",\"" + submissions[task][i].id + "\")";
-		div.innerHTML = "<input type=\"button\" onclick=" + call + " value=\"open\">"
+		var value = (currentlyViewed[task] == submissions[task][i].id ? "close" : "open");
+		var call = "handleSubmitLogClick(\"" + submissions[task][i].id + "\")";
+
+		div.innerHTML = "<input type=\"button\" onclick=" + call + " value=\"" + value + "\">"
 		+ "&nbsp;&nbsp;&nbsp;&nbsp;"
 		+ "<b>" + submissions[task][i].result + "</b>";
 
@@ -126,38 +142,30 @@ function updateSubmitsPage()
 	}
 }
 
-function view(task, id)
+function handleSubmitLogClick(id)
 {
-	var panel = document.getElementById("submissionPreview");
-
-	if(currentlyViewed == id) // close the log box
-	{
-		currentlyViewed = "";
-		panel.innerHTML = "";
-		document.getElementById("subm_" + id).children[0].value = "open";
-		return;
-	}
-
-	try
-	{
-		document.getElementById("subm_" + id).children[0].value = "close";
-		document.getElementById("subm_" + currentlyViewed).children[0].value = "open";
-	}
-	catch(err) { }
-	currentlyViewed = id;
-
-	if(logs[id] == null) logs[id] = "unavailable";
-	panel.innerHTML = "<pre>" + logs[id]; + "</pre>";
+	if(currentlyViewed[task] == id) currentlyViewed[task] = null;
+	else currentlyViewed[task] = id;
+	refreshView(currentlyViewed[task], true);
+	updateSubmitsList();
 }
 
-function refreshView(id)
+function refreshView(id, force)
 {
-	var panel = document.getElementById("submissionPreview");
-	if(logs[id] == null) logs[id] = "unavailable";
-	panel.innerHTML = "<pre>" + logs[id]; + "</pre>";
+	if(id == null)
+	{
+		currOnPreviewPanel = id;
+		previewPanel.innerHTML = "";
+	}
+	else if(id != currOnPreviewPanel || force)
+	{
+		currOnPreviewPanel = id;
+		if(logs[id] == null) logs[id] = "Downloading log...";
+		previewPanel.innerHTML = "<pre>" + logs[id]; + "</pre>";
+	}
 }
 
-function getLog(task, id, callback)
+function fetchLog(task, id, callback)
 {
 	var request = new XMLHttpRequest();
 	request.open("POST", "/getlog", true);
@@ -170,22 +178,21 @@ function getLog(task, id, callback)
 	{
 		if(request.readyState == 4)
 		{
-			logs[id] = decodeURIComponent(request.responseText);
+			if(request.responseText == 'x') return;
+			logs[id] = request.responseText;
 			callback();
 		}
 	};
 }
 
-function updateSubmitPreview()
+function updateLogPreview()
 {
-	if(currentlyViewed != "")
+	if(currentlyViewed[task] != "")
 	{
-		getLog(getSelectedTask(), currentlyViewed, function()
+		refreshView(currentlyViewed[task], false);
+		fetchLog(task, currentlyViewed[task], function()
 				{
-					refreshView(currentlyViewed);
+					refreshView(currentlyViewed[task], true);
 				});
 	}
 }
-
-setInterval(function() { getSubmitsList(getSelectedTask(), updateSubmitsPage); }, 600);
-setInterval(updateSubmitPreview, 1000);

@@ -6,7 +6,7 @@
 </head>
 <body>
 	<div id="leftSide">
-		<ul id="taskList" onclick="anyUpdate=true; updateSubmitsPage()">
+		<ul id="taskList" onclick="anyUpdate=true; handleTaskChange()">
 			{{#each tasks}}
 			<li>
 				<input name="task" type="radio" value="{{this.internal_name}}" id="t{{@index}}">
