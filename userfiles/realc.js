@@ -179,8 +179,11 @@ function fetchLog(task, id, callback)
 		if(request.readyState == 4)
 		{
 			if(request.responseText == 'x') return;
-			logs[id] = request.responseText;
-			callback();
+			if(logs[id] != request.responseText)
+			{
+				logs[id] = request.responseText;
+				callback();
+			}
 		}
 	};
 }
