@@ -6,7 +6,6 @@ var handlebars = require("handlebars");
 var toml       = require("toml");
 
 var config = toml.parse(fs.readFileSync("config.toml"));
-console.log(config);
 
 if(config == null) config = {};
 if(config.users == null) config.users = {};
@@ -216,8 +215,8 @@ function randStr(len)
 
 function saveResults()
 {
-	fs.writeFile(__dirname + "/results_tasks", JSON.stringify(tasks));
-	fs.writeFile(__dirname + "/results_users", JSON.stringify(users));
+	fs.writeFile(__dirname + "/results_tasks", JSON.stringify(tasks), function() {});
+	fs.writeFile(__dirname + "/results_users", JSON.stringify(users), function() {});
 }
 
 function readResults()
@@ -336,7 +335,6 @@ app.post("/", function(req, res) {
 	res.send(submId);
 
 	cp(command, function(err, stdout, stderr) {
-		var output = "";
 		var lines = stdout.split("\n");
 		var result = 0;
 		for(var i = 0;i < lines.length;i ++)
@@ -353,17 +351,11 @@ app.post("/", function(req, res) {
 				}
 				addNewResult(users[user].name, req.body.task, result);
 			}
-			else
-			{
-				output += lines[i] + "<br>\n";
-			}
 		}
 
 		console.log("[INFO]", new Date(),
 				"Submission with id", submId,
 				"got score", result);
-
-		//fs.writeFile(completeFileName + ".log", output, function(err) {});
 
 		subl[sublIndex].result = result;
 
