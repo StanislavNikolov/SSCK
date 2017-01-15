@@ -1,5 +1,15 @@
 var token = localStorage.getItem("authToken");
 
+var submissions = {};
+var logs = {};
+
+var currentlyViewed = {};
+var previewPanel = document.getElementById("submissionPreview");
+var currOnPreviewPanel;
+
+var task = getSelectedTask();
+updateSubmitsList();
+
 if(token == null)
 {
 	window.location = window.location.origin + "/login";
@@ -27,22 +37,20 @@ else
 					fetchSubmitsList(taskList[i].value, function(){});
 				}
 
-				setInterval(function() { fetchSubmitsList(task, updateSubmitsList); }, 600);
+				setInterval(function()
+						{
+							var f1 = false;
+							for(var i = 0;!f1 && i < submissions[task].length;i ++)
+							{
+								if(submissions[task][i].result == -1) f1 = true;
+							}
+							if(f1) fetchSubmitsList(task, updateSubmitsList);
+						}, 1000);
 				setInterval(updateLogPreview, 1000);
 			}
 		}
 	};
 }
-
-var submissions = {};
-var logs = {};
-
-var currentlyViewed = {};
-var previewPanel = document.getElementById("submissionPreview");
-var currOnPreviewPanel;
-
-var task = getSelectedTask();
-updateSubmitsList();
 
 function getSelectedTask()
 {
@@ -54,9 +62,10 @@ function getSelectedTask()
 			return taskList[i].value;
 		}
 	}
+
 	// just select the first one
 	taskList[0].checked = true;
-	task = taskList[0].value;
+	return taskList[0].value;
 }
 
 function sendCode()
@@ -80,7 +89,7 @@ function sendCode()
 	{
 		if(request.readyState == 4)
 		{
-			updateSubmitsList();
+			fetchSubmitsList(task, updateSubmitsList);
 		}
 	};
 }
@@ -160,8 +169,8 @@ function refreshView(id, force)
 	else if(id != currOnPreviewPanel || force)
 	{
 		currOnPreviewPanel = id;
-		if(logs[id] == null) logs[id] = "Downloading log...";
-		previewPanel.innerHTML = "<pre>" + logs[id]; + "</pre>";
+		if(logs[id] == null) previewPanel.innerHTML = "<pre>Downloading log...</pre>";
+		else previewPanel.innerHTML = "<pre>" + logs[id]; + "</pre>";
 	}
 }
 
@@ -190,12 +199,31 @@ function fetchLog(task, id, callback)
 
 function updateLogPreview()
 {
-	if(currentlyViewed[task] != "")
+	if(currentlyViewed[task] != null)
 	{
 		refreshView(currentlyViewed[task], false);
-		fetchLog(task, currentlyViewed[task], function()
+
+		var f2 = (logs[currentlyViewed[task]] == null);
+
+		for(var i = 0;!f2 && i < submissions[task].length;i ++)
+		{
+			if(submissions[task][i].id == currentlyViewed[task])
+			{
+				if(submissions[task][i].result == -1)
 				{
-					refreshView(currentlyViewed[task], true);
-				});
+					console.log(task, i, submissions[task][i]);
+					f2 = true;
+				}
+				break;
+			}
+		}
+
+		if(f2)
+		{
+			fetchLog(task, currentlyViewed[task], function()
+					{
+						refreshView(currentlyViewed[task], true);
+					});
+		}
 	}
 }

@@ -90,6 +90,10 @@ textarea {
 	margin: 1%;
 }
 
+pre{
+    white-space: pre-wrap;
+}
+
 input[type=radio] {
 	display:none;
 }
