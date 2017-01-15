@@ -45,8 +45,8 @@ else
 								if(submissions[task][i].result == -1) f1 = true;
 							}
 							if(f1) fetchSubmitsList(task, updateSubmitsList);
-						}, 1000);
-				setInterval(updateLogPreview, 1000);
+						}, 500);
+				setInterval(updateLogPreview, 500);
 			}
 		}
 	};
@@ -211,7 +211,6 @@ function updateLogPreview()
 			{
 				if(submissions[task][i].result == -1)
 				{
-					console.log(task, i, submissions[task][i]);
 					f2 = true;
 				}
 				break;
