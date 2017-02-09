@@ -5,7 +5,7 @@
 	<link href="userfiles/style.css" rel="stylesheet">
 </head>
 <body>
-	<div id="leftSide">
+	<div id="EVERYTHING">
 		<ul id="taskList" onclick="anyUpdate=true; handleTaskChange()">
 			{{#each tasks}}
 			<li>
@@ -14,20 +14,18 @@
 			</li>
 			{{/each}}
 		</ul>
-	</div>
-	<div id="rightSide">
-		<div id="scrlWrapper">
-			<textarea id="codeInput"></textarea>
+		<div id="codeInput">
+			<textarea id="codeInput_textarea"></textarea>
+		</div>
+		<div id="submList_Logs">
+			<div id="submissionsList"></div>
+			<div id="submissionPreview" class="scrlSimple"></div>
 			<div id="buttonPanel">
 				<input type="button" onclick="sendCode()" value="Submit"/>
 				<a href="results">LEADER BOARD</a>
 			</div>
-			<hr>
-			<div id="submSplit">
-				<div id="submissionsList"></div>
-				<div id="submissionPreview"></div>
-			</div>
 		</div>
+		<div id="submCode" class="scrlSimple"></div>
 	</div>
 	<script src="userfiles/realc.js"></script>
 </body>

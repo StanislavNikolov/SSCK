@@ -59,18 +59,25 @@ function fixGroups {
 	fi
 }
 
+function shortName {
+	echo "$1" | awk -F '.' '{print $2}'
+}
+
 function fail_timeout {
-	echo -n "`basename $1`: <font color=\"brown\">Timeout</font>"
+	t=`shortName $1`
+	echo -n "$t: <font color=\"brown\">TL</font>"
 	failsInCurrGroup=$((failsInCurrGroup+1))
 }
 
 function fail_wrong {
-	echo -n "`basename $1`: <font color=\"brown\">Wrong answer</font>"
+	t=`shortName $1`
+	echo -n "$t: <font color=\"brown\">WA</font>"
 	failsInCurrGroup=$((failsInCurrGroup+1))
 }
 
 function prn_ok {
-	echo -n "`basename $1`: <font color=\"green\">OK</font> - `cat $sstmp` seconds."
+	t=`shortName $1`
+	echo -n "$t: <font color=\"green\">OK</font> `cat $sstmp` s."
 }
 
 for test in checkers/tests/$task/tests/*.in
@@ -82,9 +89,9 @@ do
 		then
 			sed -i 1,2d $tmpfile # EasySandbox garbage, rtfm
 			out=`basename -s .in $test`.sol
-			(diff -qb checkers/tests/$task/tests/$out $tmpfile > /dev/null && prn_ok $test) || fail_wrong $test
+			(diff -qb checkers/tests/$task/tests/$out $tmpfile > /dev/null && prn_ok $out) || fail_wrong $out
 		else
-			fail_timeout $test
+			fail_timeout $out
 		fi
 		echo ""
 		fixGroups
@@ -93,7 +100,7 @@ done;
 
 currGroup=$((currGroup-1))
 output=`python -c "print(round(100 / $currGroup * $correctGroups))"`
-printf "<b>Result: %d - %d/%d</b>\n" $output $correctGroups $currGroup
+printf "<b>%d/%d</b>\n" $correctGroups $currGroup
 
 # The line after __SSCK_RES_PACK__ is the actual score showed on the results
 echo "__SSCK_RES_PACK__"

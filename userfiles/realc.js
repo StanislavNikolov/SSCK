@@ -2,9 +2,11 @@ var token = localStorage.getItem("authToken");
 
 var submissions = {};
 var logs = {};
+var codes = {};
 
 var currentlyViewed = {};
 var previewPanel = document.getElementById("submissionPreview");
+var codePanel = document.getElementById("submCode");
 var currOnPreviewPanel;
 
 var task = getSelectedTask();
@@ -70,7 +72,7 @@ function getSelectedTask()
 
 function sendCode()
 {
-	var inp = document.getElementById("codeInput");
+	var inp = document.getElementById("codeInput_textarea");
 	var code = inp.value;
 	inp.value = "";
 
@@ -144,8 +146,9 @@ function updateSubmitsList()
 		var call = "handleSubmitLogClick(\"" + submissions[task][i].id + "\")";
 
 		div.innerHTML = "<input type=\"button\" onclick=" + call + " value=\"" + value + "\">"
-		+ "&nbsp;&nbsp;&nbsp;&nbsp;"
-		+ "<b>" + submissions[task][i].result + "</b>";
+		+ "&nbsp;&nbsp;"
+		+ "<b>" + submissions[task][i].result + "</b>"
+		+ "&nbsp;&nbsp;";
 
 		sl.appendChild(div);
 	}
@@ -165,12 +168,26 @@ function refreshView(id, force)
 	{
 		currOnPreviewPanel = id;
 		previewPanel.innerHTML = "";
+		codePanel.innerHTML = "";
 	}
 	else if(id != currOnPreviewPanel || force)
 	{
 		currOnPreviewPanel = id;
 		if(logs[id] == null) previewPanel.innerHTML = "<pre>Downloading log...</pre>";
 		else previewPanel.innerHTML = "<pre>" + logs[id]; + "</pre>";
+
+		if(codes[id] == null)
+		{
+			codePanel.innerHTML = "<code><pre>Downloading...</pre></code>";
+			fetchCode(task, id, function()
+					{
+						codePanel.innerHTML = "<code><pre>" + codes[id]; + "</pre></code>";
+					});
+		}
+		else
+		{
+			codePanel.innerHTML = "<code><pre>" + codes[id]; + "</pre></code>";
+		}
 	}
 }
 
@@ -191,6 +208,34 @@ function fetchLog(task, id, callback)
 			if(logs[id] != request.responseText)
 			{
 				logs[id] = request.responseText;
+				callback();
+			}
+		}
+	};
+}
+
+function escapeHTML(str) {
+	return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function fetchCode(task, id, callback)
+{
+	var request = new XMLHttpRequest();
+	request.open("POST", "/getcode", true);
+	request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	request.send("token=" + encodeURIComponent(token)
+			+ "&task=" + encodeURIComponent(task)
+			+ "&id=" + encodeURIComponent(id));
+
+	request.onreadystatechange = function()
+	{
+		if(request.readyState == 4)
+		{
+			if(request.responseText == 'x') return;
+			var txt = escapeHTML(request.responseText);
+			if(codes[id] != txt)
+			{
+				codes[id] = txt;
 				callback();
 			}
 		}

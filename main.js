@@ -92,6 +92,38 @@ app.post("/getlog", function(req, res) {
 		res.send("x");
 	}
 });
+app.post("/getcode", function(req, res) {
+	var user = getUserFromToken(req.body.token);
+	var valid = false;
+
+	if(user != -1)
+	{
+		var subl = users[user].submissions[req.body.task];
+		if(subl != null)
+		{
+			for(var i in subl)
+			{
+				if(subl[i].id == req.body.id)
+				{
+					valid = true;
+					break;
+				}
+			}
+		}
+	}
+	if(valid)
+	{
+		res.sendFile(__dirname + "/submissions"
+				+ "/" + users[user].name
+				+ "/" + req.body.task
+				+ "/" + req.body.id
+				+ ".cpp");
+	}
+	else
+	{
+		res.send("x");
+	}
+});
 app.post("/getsubmlist", function(req, res) {
 	var user = getUserFromToken(req.body.token);
 	var task = req.body.task;
@@ -322,7 +354,9 @@ app.post("/", function(req, res) {
 
 	var command = __dirname + "/compile.sh "
 		+ completeFileName + ".cpp " + task + " " + checker
-		+ " | tee " + completeFileName + ".log";
+		+ " | tee " + completeFileName + ".log"
+		+ " && head -n -2 " + completeFileName + ".log > " + completeFileName + "_cp.log"
+		+ " && mv " + completeFileName + "_cp.log " + completeFileName + ".log";
 
 	var subl = users[user].submissions[task];
 	if(subl == null)

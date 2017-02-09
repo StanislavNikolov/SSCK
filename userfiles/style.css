@@ -18,58 +18,77 @@ hr {
  * Only /
  */
 
-#leftSide {
-	position: fixed;
-	top: 0;
-	left: 0%;
-	width: 26%;
-	height: 100%;
-	overflow: hidden;
+#EVERYTHING {
+	padding: 0;
 	margin: 0;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-flow: row;
 }
 
 #taskList {
 	list-style-type: none;
 	padding: 0;
 	margin: 0;
+	margin-right: 0.5em;
 	overflow-y: auto;
 	overflow-x: hidden;
-	height: 100%;
 }
 
-#rightSide {
-	position: fixed;
-	top: 0;
-	left: 26%;
-	width: 74%;
-	height: 100%;
+#codeInput {
+	margin: 0;
+	margin-left: 0.5em;
+	margin-right: 0.5em;
+	flex-grow: 4;
+	flex-basis: 0;
+	display: flex;
+	flex-flow: column;
+}
+textarea {
+	background-color: rgba(255, 255, 255, 0.59);
+	flex-basis: 0;
+	flex-grow: 1;
+}
+#buttonPanel {
+	margin: 0;
+	margin-top: 0.3em;
 }
 
-#scrlWrapper {
+#submList_Logs {
+	margin: 0;
+	margin-left: 0.5em;
+	margin-right: 0.5em;
+	height: auto;
+	display: flex;
+	flex-flow: column;
+}
+#submissionsList {
+	margin: 0;
+	margin-bottom: 0.5em;
+}
+#submissionPreview {
+	margin: 0;
+	margin-top: 0.5em;
+}
+
+#submCode {
+	margin: 0;
+	margin-left: 0.5em;
+	flex-grow: 5;
+	flex-basis: 0;
+}
+
+.scrlSimple {
 	padding: 0;
 	margin: 0;
 	overflow-y: auto;
 	overflow-x: hidden;
 	height: 100%;
-	display: flex;
-	flex-flow: column;
-}
-
-#submSplit {
-	flex-grow: 2;
-	flex-basis: 0;
-	height: auto;
-	display: flex;
-	flex-flow: row;
-}
-
-#submissionsList {
-	margin-right: 1em;
 }
 
 .submission {
-	width: 100%;
-	margin: 0.3em;
+	margin-bottom: 0.3em;
 }
 
 .testing { background-color: #0b7da0; }
@@ -77,21 +96,15 @@ hr {
 .ok { background-color: #7cb50c; }
 .partial { background-color: #afdb57; }
 
-#buttonPanel {
-	width: 100%;
-	margin: 0.5em;
-}
-
-textarea {
-	background: #5ad0f4;
-	width: 100%;
-	flex-basis: 0;
-	flex-grow: 1;
-	margin: 1%;
-}
-
-pre{
+pre {
+	padding: 0;
+	margin: 0;
     white-space: pre-wrap;
+}
+
+code pre {
+	color: black;
+	background-color: rgba(255, 255, 255, 0.59);
 }
 
 input[type=radio] {
