@@ -1,6 +1,7 @@
 #!/bin/env bash
 
 safeBin="LD_PRELOAD=./EasySandbox.so $1"
+#safeBin="$1"
 task=$2
 
 declare -A timeLimit
@@ -39,6 +40,7 @@ failsInCurrGroup=0
 
 tmpfile=`mktemp`
 sstmp=`mktemp` # system status tmp file
+excode=`mktemp` # system status tmp file
 
 function fixGroups {
 	if (( $currTestInGroup == $groupSize ))
@@ -65,19 +67,25 @@ function shortName {
 
 function fail_timeout {
 	t=`shortName $1`
-	echo -n "$t: <font color=\"brown\">TL</font>"
+	echo -n "$t: <font color=\"fireBrick\">TIML</font>"
+	failsInCurrGroup=$((failsInCurrGroup+1))
+}
+
+function fail_nonZeroExitCode {
+	t=`shortName $1`
+	echo -n "$t: <font color=\"brown\">CRSH</font>"
 	failsInCurrGroup=$((failsInCurrGroup+1))
 }
 
 function fail_wrong {
 	t=`shortName $1`
-	echo -n "$t: <font color=\"brown\">WA</font>"
+	echo -n "$t: <font color=\"darkRed\">WANS</font>"
 	failsInCurrGroup=$((failsInCurrGroup+1))
 }
 
 function prn_ok {
 	t=`shortName $1`
-	echo -n "$t: <font color=\"green\">OK</font> `cat $sstmp` s."
+	echo -n "$t: <font color=\"green\">OK</font> ~$(<$sstmp)s."
 }
 
 for test in checkers/tests/$task/tests/*.in
@@ -85,11 +93,19 @@ do
 	str="$test"
 	if [[ ! $str =~ "00.in" ]]
 	then
-		if timeout ${timeLimit[$task]} sh -c "TIMEFORMAT=%3R; time ($safeBin < $test &> $tmpfile) &> $sstmp"
+		out=`basename -s .in $test`.sol
+		if timeout ${timeLimit[$task]} sh -c \
+			"TIMEFORMAT=%3R; time ($safeBin < $test &> $tmpfile; echo \$? > $excode) &> $sstmp"
 		then
 			sed -i 1,2d $tmpfile # EasySandbox garbage, rtfm
-			out=`basename -s .in $test`.sol
-			(diff -qb checkers/tests/$task/tests/$out $tmpfile > /dev/null && prn_ok $out) || fail_wrong $out
+			ec=$(<$excode)
+			if [[ "$ec" == "0" ]]
+			then
+				(diff -qb checkers/tests/$task/tests/$out $tmpfile > /dev/null && prn_ok $out) \
+					|| fail_wrong $out
+			else
+				fail_nonZeroExitCode $out
+			fi
 		else
 			fail_timeout $out
 		fi
